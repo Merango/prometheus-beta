@@ -1,10 +1,10 @@
 """
-LZW Compression Algorithm Implementation
+LZH Compression Algorithm Implementation
 
-This module provides a basic implementation of the LZW compression algorithm.
+This module provides a basic implementation of the LZH compression algorithm.
 """
 
-def lzw_compress(data):
+def lzh_compress(data):
     """
     Compress data using the LZW compression algorithm.
     
@@ -64,9 +64,9 @@ def lzw_compress(data):
     compressed = bytes(result)
     return compressed
 
-def lzw_decompress(compressed_data):
+def lzh_decompress(compressed_data):
     """
-    Decompress data compressed with the LZW algorithm.
+    Decompress data compressed with the LZH algorithm.
     
     Args:
         compressed_data (bytes): Compressed input data.
