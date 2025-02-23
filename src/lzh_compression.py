@@ -4,6 +4,47 @@ LZH (Lempel-Ziv-Huffman) Compression Algorithm Implementation
 This module provides a basic implementation of the LZH compression algorithm.
 """
 
+def encode_varint(value):
+    """
+    Encode an integer into a variable-length byte sequence.
+    
+    Args:
+        value (int): The integer to encode.
+    
+    Returns:
+        bytes: Encoded integer.
+    """
+    encoded = []
+    while value > 0:
+        byte = value & 0x7F
+        value >>= 7
+        if value > 0:
+            byte |= 0x80  # Set continuation bit
+        encoded.insert(0, byte)
+    
+    return bytes(encoded) if encoded else bytes([0])
+
+def decode_varint(data):
+    """
+    Decode a variable-length byte sequence back to an integer.
+    
+    Args:
+        data (bytes): The byte sequence to decode.
+    
+    Returns:
+        tuple: (decoded integer, number of bytes read)
+    """
+    value = 0
+    bytes_read = 0
+    
+    for byte in data:
+        bytes_read += 1
+        value = (value << 7) | (byte & 0x7F)
+        if byte & 0x80 == 0:
+            break
+    
+    return value, bytes_read
+
 def lzh_compress(data):
     """
     Compress the input data using LZH compression algorithm.
@@ -43,7 +84,8 @@ def lzh_compress(data):
         # If sequence not in dictionary, add to compressed and update dictionary
         if current_sequence not in dictionary:
             # Output the code for the previous sequence
-            compressed.append(dictionary[current_sequence[:-1]])
+            current_code = dictionary[current_sequence[:-1]]
+            compressed.extend(encode_varint(current_code))
             
             # Add new sequence to dictionary if not at max
             if next_code < 65536:  # Limit dictionary size
@@ -55,9 +97,9 @@ def lzh_compress(data):
     
     # Add last sequence
     if current_sequence:
-        compressed.append(dictionary[current_sequence])
+        current_code = dictionary[current_sequence]
+        compressed.extend(encode_varint(current_code))
     
-    # Convert to bytes
     return bytes(compressed)
 
 def lzh_decompress(compressed_data):
@@ -85,12 +127,24 @@ def lzh_decompress(compressed_data):
     dictionary = {i: bytes([i]) for i in range(256)}
     next_code = 256
     
-    # First code is always output
-    result = [compressed_data[0]]
-    current = dictionary[compressed_data[0]]
+    # Decompression variables
+    result = []
+    index = 0
+    
+    # Decode first code
+    first_code, bytes_read = decode_varint(compressed_data)
+    index += bytes_read
+    
+    # Start with first decoded code
+    current = dictionary[first_code]
+    result.extend(current)
     
     # Decompress remaining data
-    for code in compressed_data[1:]:
+    while index < len(compressed_data):
+        # Decode next code
+        code, read_bytes = decode_varint(compressed_data[index:])
+        index += read_bytes
+        
         # Decode current sequence
         if code in dictionary:
             sequence = dictionary[code]
