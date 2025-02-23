@@ -4,53 +4,53 @@ LZH (Lempel-Ziv-Huffman) Compression Algorithm Implementation
 This module provides a basic implementation of the LZH compression algorithm.
 """
 
-def encode_varint(value):
+def encode_length(length):
     """
-    Encode an integer into a variable-length byte sequence.
+    Encode the length as a variable-length sequence.
     
     Args:
-        value (int): The integer to encode.
+        length (int): Length to encode.
     
     Returns:
-        bytes: Encoded integer.
+        bytes: Encoded length.
     """
-    encoded = []
-    while value > 0:
-        byte = value & 0x7F
-        value >>= 7
-        if value > 0:
+    result = []
+    while length > 0:
+        byte = length & 0x7F
+        length >>= 7
+        if length > 0:
             byte |= 0x80  # Set continuation bit
-        encoded.insert(0, byte)
+        result.insert(0, byte)
     
-    return bytes(encoded) if encoded else bytes([0])
+    return bytes(result) if result else bytes([0])
 
-def decode_varint(data):
+def decode_length(data):
     """
-    Decode a variable-length byte sequence back to an integer.
+    Decode a variable-length length.
     
     Args:
-        data (bytes): The byte sequence to decode.
+        data (bytes): Sequence to decode.
     
     Returns:
-        tuple: (decoded integer, number of bytes read)
+        tuple: (decoded length, bytes read)
     """
-    value = 0
+    length = 0
     bytes_read = 0
     
     for byte in data:
         bytes_read += 1
-        value = (value << 7) | (byte & 0x7F)
+        length = (length << 7) | (byte & 0x7F)
         if byte & 0x80 == 0:
             break
     
-    return value, bytes_read
+    return length, bytes_read
 
 def lzh_compress(data):
     """
-    Compress the input data using LZH compression algorithm.
+    Compress the input data using a modified LZW algorithm.
     
     Args:
-        data (bytes or str): The input data to be compressed.
+        data (bytes or str): Input data to compress.
     
     Returns:
         bytes: Compressed data.
@@ -59,64 +59,60 @@ def lzh_compress(data):
         TypeError: If input is not bytes or str.
         ValueError: If input is empty.
     """
-    # Validate input
+    # Validate and convert input
     if not data:
         raise ValueError("Input data cannot be empty")
     
-    # Convert to bytes if input is a string
     if isinstance(data, str):
         data = data.encode('utf-8')
     
     if not isinstance(data, bytes):
         raise TypeError("Input must be bytes or str")
     
-    # Initialize compression dictionary and variables
+    # Initialize dictionary and variables
     dictionary = {bytes([i]): i for i in range(256)}
     next_code = 256
     current_sequence = bytes()
     compressed = []
     
-    # LZH compression logic
+    # Compression loop
     for byte in data:
         # Extend current sequence
-        extended_sequence = current_sequence + bytes([byte])
+        current_sequence += bytes([byte])
         
-        # If extended sequence is in dictionary, keep extending
-        if extended_sequence in dictionary:
-            current_sequence = extended_sequence
-        else:
-            # Output current sequence's code
-            current_code = dictionary[current_sequence]
-            compressed.extend(encode_varint(current_code))
+        # If current sequence not in dictionary
+        if current_sequence not in dictionary:
+            # Output previous sequence's code
+            prev_code = dictionary[current_sequence[:-1]]
+            compressed.extend(encode_length(prev_code))
             
-            # If dictionary is not full, add new sequence
+            # Add new sequence to dictionary if space available
             if next_code < 65536:
-                dictionary[extended_sequence] = next_code
+                dictionary[current_sequence] = next_code
                 next_code += 1
             
-            # Reset current sequence to last byte
+            # Reset current sequence
             current_sequence = bytes([byte])
     
-    # Add last sequence if exists
+    # Output last sequence
     if current_sequence:
-        current_code = dictionary[current_sequence]
-        compressed.extend(encode_varint(current_code))
+        compressed.extend(encode_length(dictionary[current_sequence]))
     
     return bytes(compressed)
 
 def lzh_decompress(compressed_data):
     """
-    Decompress data compressed with LZH algorithm.
+    Decompress data compressed with the LZW algorithm.
     
     Args:
-        compressed_data (bytes): The compressed input data.
+        compressed_data (bytes): Compressed input data.
     
     Returns:
         bytes: Decompressed data.
     
     Raises:
         TypeError: If input is not bytes.
-        ValueError: If input is empty.
+        ValueError: If input is empty or invalid.
     """
     # Validate input
     if not compressed_data:
@@ -125,42 +121,42 @@ def lzh_decompress(compressed_data):
     if not isinstance(compressed_data, bytes):
         raise TypeError("Compressed data must be bytes")
     
-    # Initialize decompression dictionary
+    # Initialize dictionary
     dictionary = {i: bytes([i]) for i in range(256)}
     next_code = 256
     
     # Decompression variables
-    result = []
     index = 0
-    previous_sequence = None
+    result = []
+    previous_code = None
     
-    # Decode input completely
+    # Process entire compressed data
     while index < len(compressed_data):
-        # Decode next code
-        current_code, read_bytes = decode_varint(compressed_data[index:])
-        index += read_bytes
+        # Decode current code
+        current_code, bytes_read = decode_length(compressed_data[index:])
+        index += bytes_read
         
-        # Decode current sequence
+        # Retrieve current sequence
         if current_code in dictionary:
             current_sequence = dictionary[current_code]
+        elif current_code == next_code and previous_code is not None:
+            # Special case for new sequence
+            prev_sequence = dictionary[previous_code]
+            current_sequence = prev_sequence + bytes([prev_sequence[0]])
         else:
-            # Special predictive scenario
-            if previous_sequence is None:
-                raise ValueError("Invalid compressed data")
-            
-            # Reconstruct sequence
-            current_sequence = previous_sequence + bytes([previous_sequence[0]])
+            raise ValueError(f"Invalid compressed data at index {index}")
         
-        # Append current sequence to result
+        # Add current sequence to result
         result.extend(current_sequence)
         
-        # Add to dictionary if possible 
-        if previous_sequence is not None and next_code < 65536:
-            new_sequence = previous_sequence + bytes([current_sequence[0]])
+        # Add to dictionary if possible
+        if previous_code is not None and next_code < 65536:
+            prev_sequence = dictionary[previous_code]
+            new_sequence = prev_sequence + bytes([current_sequence[0]])
             dictionary[next_code] = new_sequence
             next_code += 1
         
-        # Update previous sequence
-        previous_sequence = current_sequence
+        # Update previous code
+        previous_code = current_code
     
     return bytes(result)
