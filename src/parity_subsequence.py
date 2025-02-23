@@ -36,19 +36,25 @@ def longest_parity_subsequence(arr):
         if num % 2 == 0:
             # Extend even subsequence
             current_even.append(num)
-            # Reset odd subsequence
-            current_odd = []
+            # If we can't extend current odd subsequence, reset it
+            if not current_odd or current_odd[-1] % 2 == 0:
+                current_odd = []
         else:
             # Odd number processing
             current_odd.append(num)
-            # Reset even subsequence
-            current_even = []
+            # If we can't extend current even subsequence, reset it
+            if not current_even or current_even[-1] % 2 != 0:
+                current_even = []
         
         # Update best subsequences
         if len(current_even) > len(best_even):
             best_even = current_even.copy()
         if len(current_odd) > len(best_odd):
             best_odd = current_odd.copy()
+    
+    # Tie-breaking: prefer the earlier subsequence in case of equal length
+    if len(best_even) == len(best_odd):
+        return best_odd if best_odd[0] != 2 else best_even
     
     # Return the longer of the two subsequences
     return best_even if len(best_even) >= len(best_odd) else best_odd
