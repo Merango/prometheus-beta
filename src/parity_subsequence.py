@@ -23,38 +23,37 @@ def longest_parity_subsequence(arr):
     if len(arr) == 1:
         return arr
     
-    # Track the best subsequences for even and odd
-    best_even = []
-    best_odd = []
-    
-    # Current subsequences being built
+    # Find all possible subsequences of the same parity
+    even_sequences = []
     current_even = []
+    odd_sequences = []
     current_odd = []
     
     for num in arr:
-        # Even number processing
         if num % 2 == 0:
-            # Extend even subsequence
             current_even.append(num)
-            # If we can't extend current odd subsequence, reset it
-            if not current_odd or current_odd[-1] % 2 == 0:
-                current_odd = []
+            current_odd = []
         else:
-            # Odd number processing
             current_odd.append(num)
-            # If we can't extend current even subsequence, reset it
-            if not current_even or current_even[-1] % 2 != 0:
-                current_even = []
+            current_even = []
         
-        # Update best subsequences
-        if len(current_even) > len(best_even):
-            best_even = current_even.copy()
-        if len(current_odd) > len(best_odd):
-            best_odd = current_odd.copy()
+        # Save sequences
+        if current_even:
+            even_sequences.append(current_even.copy())
+        if current_odd:
+            odd_sequences.append(current_odd.copy())
     
-    # Tie-breaking: prefer the earlier subsequence in case of equal length
-    if len(best_even) == len(best_odd):
-        return best_odd if best_odd[0] != 2 else best_even
+    # Find the longest sequences
+    max_even = max(even_sequences, key=len, default=[])
+    max_odd = max(odd_sequences, key=len, default=[])
     
-    # Return the longer of the two subsequences
-    return best_even if len(best_even) >= len(best_odd) else best_odd
+    # If equal length, prefer the sequence that appears first
+    if len(max_even) == len(max_odd):
+        # Find the first occurrence of each sequence type
+        first_even_index = arr.index(max_even[0]) if max_even else float('inf')
+        first_odd_index = arr.index(max_odd[0]) if max_odd else float('inf')
+        
+        return max_even if first_even_index < first_odd_index else max_odd
+    
+    # Return the longer sequence
+    return max_even if len(max_even) >= len(max_odd) else max_odd
