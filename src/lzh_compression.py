@@ -79,23 +79,25 @@ def lzh_compress(data):
     # LZH compression logic
     for byte in data:
         # Extend current sequence
-        current_sequence += bytes([byte])
+        extended_sequence = current_sequence + bytes([byte])
         
-        # If sequence not in dictionary, add to compressed and update dictionary
-        if current_sequence not in dictionary:
-            # Output the code for the previous sequence
-            current_code = dictionary[current_sequence[:-1]]
+        # If extended sequence is in dictionary, keep extending
+        if extended_sequence in dictionary:
+            current_sequence = extended_sequence
+        else:
+            # Output current sequence's code
+            current_code = dictionary[current_sequence]
             compressed.extend(encode_varint(current_code))
             
-            # Add new sequence to dictionary if not at max
-            if next_code < 65536:  # Limit dictionary size
-                dictionary[current_sequence] = next_code
+            # If dictionary is not full, add new sequence
+            if next_code < 65536:
+                dictionary[extended_sequence] = next_code
                 next_code += 1
             
             # Reset current sequence to last byte
             current_sequence = bytes([byte])
     
-    # Add last sequence
+    # Add last sequence if exists
     if current_sequence:
         current_code = dictionary[current_sequence]
         compressed.extend(encode_varint(current_code))
@@ -130,39 +132,35 @@ def lzh_decompress(compressed_data):
     # Decompression variables
     result = []
     index = 0
+    previous_sequence = None
     
-    # Decode first code
-    first_code, bytes_read = decode_varint(compressed_data)
-    index += bytes_read
-    
-    # Start with first decoded code
-    current = dictionary[first_code]
-    result.extend(current)
-    
-    # Decompress remaining data
+    # Decode input completely
     while index < len(compressed_data):
         # Decode next code
-        code, read_bytes = decode_varint(compressed_data[index:])
+        current_code, read_bytes = decode_varint(compressed_data[index:])
         index += read_bytes
         
         # Decode current sequence
-        if code in dictionary:
-            sequence = dictionary[code]
-        elif code == next_code:
-            # Special case for new sequence
-            sequence = current + bytes([current[0]])
+        if current_code in dictionary:
+            current_sequence = dictionary[current_code]
         else:
-            raise ValueError("Invalid compressed data")
+            # Special predictive scenario
+            if previous_sequence is None:
+                raise ValueError("Invalid compressed data")
+            
+            # Reconstruct sequence
+            current_sequence = previous_sequence + bytes([previous_sequence[0]])
         
-        # Output decoded sequence
-        result.extend(sequence)
+        # Append current sequence to result
+        result.extend(current_sequence)
         
-        # Update dictionary if possible
-        if next_code < 65536:
-            dictionary[next_code] = current + bytes([sequence[0]])
+        # Add to dictionary if possible 
+        if previous_sequence is not None and next_code < 65536:
+            new_sequence = previous_sequence + bytes([current_sequence[0]])
+            dictionary[next_code] = new_sequence
             next_code += 1
         
-        # Update current
-        current = sequence
+        # Update previous sequence
+        previous_sequence = current_sequence
     
     return bytes(result)
