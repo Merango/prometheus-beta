@@ -30,10 +30,10 @@ def lzjh_compress(data):
         raise TypeError("Input must be bytes or str")
     
     # Initialize compression dictionary and variables
-    dictionary = {bytes([i]): i for i in range(256)}
+    dictionary = {}
     next_code = 256
     current_sequence = b''
-    compressed = bytearray()
+    compressed = []
     
     # Iterate through input data
     for byte in data:
@@ -44,10 +44,14 @@ def lzjh_compress(data):
         if test_sequence in dictionary:
             current_sequence = test_sequence
         else:
-            # Add the code for the current sequence
+            # Add the code or byte for the current sequence
             if current_sequence:
-                code = dictionary[current_sequence]
-                compressed.extend(code.to_bytes((code.bit_length() + 7) // 8, byteorder='big'))
+                # If single byte, return the byte
+                if len(current_sequence) == 1:
+                    compressed.append(current_sequence[0])
+                else:
+                    # If multi-byte sequence, return its dictionary code
+                    compressed.append(dictionary.get(current_sequence, current_sequence))
             
             # Add new sequence to dictionary
             if next_code < 65536:  # Limit dictionary size
@@ -59,8 +63,12 @@ def lzjh_compress(data):
     
     # Add final sequence if exists
     if current_sequence:
-        code = dictionary[current_sequence]
-        compressed.extend(code.to_bytes((code.bit_length() + 7) // 8, byteorder='big'))
+        # If single byte, return the byte
+        if len(current_sequence) == 1:
+            compressed.append(current_sequence[0])
+        else:
+            # If multi-byte sequence, return its dictionary code
+            compressed.append(dictionary.get(current_sequence, current_sequence))
     
     return bytes(compressed)
 
@@ -85,54 +93,40 @@ def lzjh_decompress(compressed_data):
     if not isinstance(compressed_data, bytes):
         raise TypeError("Compressed data must be bytes")
     
-    # Initialize decompression dictionary
+    # Initialize decompression dictionary and variables
     dictionary = {i: bytes([i]) for i in range(256)}
     next_code = 256
     result = []
     
-    # Helper function to read next code
-    def read_next_code(data_slice):
-        code = 0
-        consumed_bytes = 0
-        while data_slice:
-            code = (code << 8) | data_slice[0]
-            data_slice = data_slice[1:]
-            consumed_bytes += 1
-            
-            # Try looking up the code
-            if code in dictionary:
-                return code, consumed_bytes, data_slice
-        
-        raise ValueError("Invalid compressed data")
+    # First entry
+    if len(compressed_data) == 0:
+        return b''
     
-    # Initial entry
-    current_code, bytes_used, remaining = read_next_code(compressed_data)
-    current = dictionary[current_code]
-    result.append(current)
+    previous = dictionary[compressed_data[0]]
+    result.append(previous)
     
     # Decompress the rest
-    while remaining:
-        # Get next code
-        next_code_val, used, remaining = read_next_code(remaining)
-        
+    for code in compressed_data[1:]:
         # Determine the current entry
-        if next_code_val in dictionary:
-            entry = dictionary[next_code_val]
-        elif next_code_val == next_code:
-            # Special case: new sequence predicted
-            entry = current + current[:1]
+        if code < 256:
+            # Direct byte
+            entry = bytes([code])
+        elif code in dictionary:
+            # From dictionary
+            entry = dictionary[code]
         else:
-            raise ValueError(f"Invalid compressed code: {next_code_val}")
+            # Predicted sequence
+            entry = previous + previous[:1]
         
         # Add to result
         result.append(entry)
         
         # Add new sequence to dictionary
         if next_code < 65536:
-            dictionary[next_code] = current + entry[:1]
+            dictionary[next_code] = previous + entry[:1]
             next_code += 1
         
-        # Update current
-        current = entry
+        # Update previous
+        previous = entry
     
     return b''.join(result)
