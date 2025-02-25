@@ -30,35 +30,37 @@ def lzjh_compress(data):
         raise TypeError("Input must be bytes or str")
     
     # Initialize compression dictionary and variables
-    dictionary = {}
+    dictionary = {bytes([i]): i for i in range(256)}
     next_code = 256
     current_sequence = b''
     compressed = []
     
     # Iterate through input data
     for byte in data:
-        # Create current sequence with new byte
-        current_sequence += bytes([byte])
+        # Extend current sequence
+        test_sequence = current_sequence + bytes([byte])
         
-        # If sequence not in dictionary, add it
-        if current_sequence not in dictionary:
-            # Output the code for the previous sequence
-            if len(current_sequence) > 1:
-                compressed.append(dictionary.get(current_sequence[:-1], current_sequence[:-1]))
+        # If we've seen this sequence before, continue
+        if test_sequence in dictionary:
+            current_sequence = test_sequence
+        else:
+            # Add the code for the current sequence
+            if current_sequence:
+                compressed.append(dictionary[current_sequence])
             
-            # Add current sequence to dictionary if it doesn't use reserved codes
+            # Add new sequence to dictionary
             if next_code < 65536:  # Limit dictionary size
-                dictionary[current_sequence] = next_code
+                dictionary[test_sequence] = next_code
                 next_code += 1
             
-            # Reset to last byte
+            # Reset current sequence
             current_sequence = bytes([byte])
     
-    # Add final sequence
+    # Add final sequence if exists
     if current_sequence:
-        compressed.append(dictionary.get(current_sequence, current_sequence))
+        compressed.append(dictionary[current_sequence])
     
-    return b''.join(compressed)
+    return bytes(compressed)
 
 def lzjh_decompress(compressed_data):
     """
@@ -81,29 +83,35 @@ def lzjh_decompress(compressed_data):
     if not isinstance(compressed_data, bytes):
         raise TypeError("Compressed data must be bytes")
     
-    # Initialize decompression dictionary and variables
+    # Initialize decompression dictionary
     dictionary = {i: bytes([i]) for i in range(256)}
     next_code = 256
     result = []
-    previous = compressed_data[:1]
-    result.append(previous)
     
-    # Decompress the data
+    # First entry
+    current = dictionary[compressed_data[0]]
+    result.append(current)
+    
+    # Decompress the rest
     for code in compressed_data[1:]:
-        # Handle different scenarios for dictionary lookup
-        current = dictionary.get(code, None)
+        # Determine the current entry
+        if code in dictionary:
+            entry = dictionary[code]
+        elif code == next_code:
+            # Special case: new sequence predicted
+            entry = current + current[:1]
+        else:
+            raise ValueError(f"Invalid compressed code: {code}")
         
-        if current is None:
-            # Special case: current code not in dictionary
-            current = previous + previous[:1]
+        # Add to result
+        result.append(entry)
         
-        result.append(current)
-        
-        # Add new sequence to dictionary
-        if next_code < 65536:  # Limit dictionary size
-            dictionary[next_code] = previous + current[:1]
+        # Add new sequence to dictionary if possible
+        if next_code < 65536:
+            dictionary[next_code] = current + entry[:1]
             next_code += 1
         
-        previous = current
+        # Update current
+        current = entry
     
     return b''.join(result)
