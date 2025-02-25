@@ -33,7 +33,7 @@ def lzjh_compress(data):
     dictionary = {bytes([i]): i for i in range(256)}
     next_code = 256
     current_sequence = b''
-    compressed = []
+    compressed = bytearray()
     
     # Iterate through input data
     for byte in data:
@@ -46,7 +46,8 @@ def lzjh_compress(data):
         else:
             # Add the code for the current sequence
             if current_sequence:
-                compressed.append(dictionary[current_sequence])
+                code = dictionary[current_sequence]
+                compressed.extend(code.to_bytes((code.bit_length() + 7) // 8, byteorder='big'))
             
             # Add new sequence to dictionary
             if next_code < 65536:  # Limit dictionary size
@@ -58,7 +59,8 @@ def lzjh_compress(data):
     
     # Add final sequence if exists
     if current_sequence:
-        compressed.append(dictionary[current_sequence])
+        code = dictionary[current_sequence]
+        compressed.extend(code.to_bytes((code.bit_length() + 7) // 8, byteorder='big'))
     
     return bytes(compressed)
 
@@ -88,25 +90,44 @@ def lzjh_decompress(compressed_data):
     next_code = 256
     result = []
     
-    # First entry
-    current = dictionary[compressed_data[0]]
+    # Helper function to read next code
+    def read_next_code(data_slice):
+        code = 0
+        consumed_bytes = 0
+        while data_slice:
+            code = (code << 8) | data_slice[0]
+            data_slice = data_slice[1:]
+            consumed_bytes += 1
+            
+            # Try looking up the code
+            if code in dictionary:
+                return code, consumed_bytes, data_slice
+        
+        raise ValueError("Invalid compressed data")
+    
+    # Initial entry
+    current_code, bytes_used, remaining = read_next_code(compressed_data)
+    current = dictionary[current_code]
     result.append(current)
     
     # Decompress the rest
-    for code in compressed_data[1:]:
+    while remaining:
+        # Get next code
+        next_code_val, used, remaining = read_next_code(remaining)
+        
         # Determine the current entry
-        if code in dictionary:
-            entry = dictionary[code]
-        elif code == next_code:
+        if next_code_val in dictionary:
+            entry = dictionary[next_code_val]
+        elif next_code_val == next_code:
             # Special case: new sequence predicted
             entry = current + current[:1]
         else:
-            raise ValueError(f"Invalid compressed code: {code}")
+            raise ValueError(f"Invalid compressed code: {next_code_val}")
         
         # Add to result
         result.append(entry)
         
-        # Add new sequence to dictionary if possible
+        # Add new sequence to dictionary
         if next_code < 65536:
             dictionary[next_code] = current + entry[:1]
             next_code += 1
