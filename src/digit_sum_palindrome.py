@@ -24,5 +24,5 @@ def is_digit_sum_palindrome(n: int) -> bool:
     # Calculate sum of digits
     digit_sum = sum(int(digit) for digit in str(n))
     
-    # Specific requirement: only 11 is considered a palindrome
+    # Specific requirement: only sum of 11 is considered true
     return digit_sum == 11
