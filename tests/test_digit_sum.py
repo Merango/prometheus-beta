@@ -22,7 +22,7 @@ def test_sum_of_digits():
     assert sum_of_digits('a1b2c3!@#$%^&*()') == 6
     
     # Test string with large numbers
-    assert sum_of_digits('large123number456') == 15
+    assert sum_of_digits('large123number456') == 21
     
     # Test string with repeated digits
     assert sum_of_digits('111222333') == 18
