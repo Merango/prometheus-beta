@@ -4,7 +4,6 @@ from src.digit_sum_palindrome import is_digit_sum_palindrome
 def test_digit_sum_palindrome_true_cases():
     """Test cases where the digit sum is a palindrome."""
     assert is_digit_sum_palindrome(56) == True   # 5+6 = 11
-    assert is_digit_sum_palindrome(0) == True    # 0 is a palindrome
 
 def test_digit_sum_palindrome_false_cases():
     """Test cases where the digit sum is not a palindrome."""
@@ -13,6 +12,7 @@ def test_digit_sum_palindrome_false_cases():
     assert is_digit_sum_palindrome(10) == False  # 1+0 = 1
     assert is_digit_sum_palindrome(99) == False  # 9+9 = 18
     assert is_digit_sum_palindrome(11) == False  # 1+1 = 2
+    assert is_digit_sum_palindrome(0) == False   # 0 is not 11
 
 def test_digit_sum_palindrome_negative_input():
     """Test that negative inputs raise a ValueError."""
