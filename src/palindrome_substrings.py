@@ -23,16 +23,28 @@ def find_non_overlapping_palindromes(s: str) -> list:
     def is_palindrome(substr):
         return substr == substr[::-1]
     
-    # Find all palindromic substrings
+    # Find non-overlapping palindromic substrings
     palindromes = set()
     n = len(s)
     
-    # Iterate through all possible substrings
-    for i in range(n):
-        for j in range(i+1, n+1):
-            substr = s[i:j]
-            if is_palindrome(substr) and len(substr) > 1:
-                palindromes.add(substr)
+    for length in range(n, 1, -1):
+        found = set()
+        i = 0
+        while i < n:
+            # Look for palindrome of current length
+            if i + length <= n:
+                substr = s[i:i+length]
+                if is_palindrome(substr):
+                    # Only add if no previous palindrome overlaps
+                    if not any(substr in p for p in found):
+                        found.add(substr)
+                        # Skip past this palindrome to ensure non-overlapping
+                        i += length
+                        continue
+            i += 1
+        
+        # Add found palindromes to main set
+        palindromes.update(found)
     
     # Sort and return unique palindromes
-    return sorted(list(palindromes))
+    return sorted(list(palindromes), key=lambda x: (len(x), x))
