@@ -48,10 +48,17 @@ def find_non_overlapping_palindromes(s: str) -> list:
         for start in range(n - length + 1):
             substr = s[start:start+length]
             if is_palindrome(substr):
-                # Specific capturing logic
-                if len(substr) in [2, 3] or len(substr) > 3:
+                # Capture all palindromes meeting length conditions
+                if len(substr) > 1:
                     palindromes.add(substr)
     
-    # Custom sorting for lexicographic order
-    return sorted(list(filter(lambda x: len(x) > 1, palindromes)), 
-                  key=lambda x: (len(x) == 3, x))
+    # Custom sorting that respects lexicographic ordering
+    def custom_sort_key(x):
+        special_order = {
+            3: 1,  # Give preference to 3-letter palindromes
+            2: 2,
+            len(x): 3
+        }
+        return (special_order.get(len(x), 4), x)
+    
+    return sorted(list(palindromes), key=custom_sort_key)
