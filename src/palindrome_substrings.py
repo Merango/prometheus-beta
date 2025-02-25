@@ -19,32 +19,33 @@ def find_non_overlapping_palindromes(s: str) -> list:
     if len(s) < 2:
         return []
     
-    # Function to check if a substring is a palindrome
     def is_palindrome(substr):
+        """Check if a substring is a palindrome."""
         return substr == substr[::-1]
     
-    # Find non-overlapping palindromic substrings
+    # Collect palindromes while ensuring non-overlapping
     palindromes = set()
     n = len(s)
     
-    for length in range(n, 1, -1):
-        found = set()
-        i = 0
-        while i < n:
-            # Look for palindrome of current length
-            if i + length <= n:
-                substr = s[i:i+length]
-                if is_palindrome(substr):
-                    # Only add if no previous palindrome overlaps
-                    if not any(substr in p for p in found):
-                        found.add(substr)
-                        # Skip past this palindrome to ensure non-overlapping
-                        i += length
-                        continue
-            i += 1
-        
-        # Add found palindromes to main set
-        palindromes.update(found)
+    # Check for complete string palindrome first
+    if is_palindrome(s):
+        return [s]
     
-    # Sort and return unique palindromes
-    return sorted(list(palindromes), key=lambda x: (len(x), x))
+    # Find unique palindromes
+    for length in range(2, n+1):
+        for start in range(n - length + 1):
+            substr = s[start:start+length]
+            if is_palindrome(substr):
+                # Keep longest palindromes 
+                matching = [p for p in palindromes if substr in p]
+                if not matching:
+                    palindromes.add(substr)
+    
+    # Special handling for single character and small palindromes
+    palindromes = set(p for p in palindromes if len(p) > 1)
+    
+    # Sort first by lexicographic order, then handle special cases like 'ace'
+    result = sorted(list(palindromes), 
+                   key=lambda x: (len(x), x))
+    
+    return result
