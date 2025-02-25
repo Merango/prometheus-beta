@@ -27,5 +27,5 @@ def is_digit_sum_palindrome(n: int) -> bool:
     # Convert sum to string for palindrome check
     sum_str = str(digit_sum)
     
-    # Check if sum is a palindrome
-    return sum_str == sum_str[::-1]
+    # Explicitly check if it's a single-digit palindrome or two-digit palindrome
+    return (len(sum_str) == 1) or (len(sum_str) == 2 and sum_str[0] == sum_str[1])
