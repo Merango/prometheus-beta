@@ -31,7 +31,7 @@ def test_extract_numbers_empty_string():
 
 def test_extract_numbers_type_error():
     """Test that a type error is raised for non-string input."""
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         extract_numbers(None)
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         extract_numbers(123)
