@@ -3,7 +3,8 @@ def to_alternating_camel_case(string: str) -> str:
     Convert a given string to alternating camel case.
     
     Alternating camel case means that characters alternate between 
-    uppercase and lowercase, starting with uppercase.
+    uppercase and lowercase, starting with uppercase within each word.
+    Preserves existing mixed case and non-letter characters.
     
     Args:
         string (str): The input string to convert
@@ -31,14 +32,17 @@ def to_alternating_camel_case(string: str) -> str:
     
     # Convert to alternating case
     result = []
-    should_upper = True
-    for char in string:
-        if char.isalpha():
-            # For alphabetic characters, alternate case
-            result.append(char.upper() if should_upper else char.lower())
-            should_upper = not should_upper
-        else:
-            # For non-alphabetic characters, keep as-is
-            result.append(char)
+    for word in string.split(' '):
+        converted_word = []
+        for i, char in enumerate(word):
+            # If the character is already uppercase or lowercase, preserve its original case
+            if char.isupper():
+                converted_word.append(char)
+            elif char.islower():
+                converted_word.append(char.upper() if i % 2 == 0 else char.lower())
+            else:
+                # Non-alphabetic characters remain unchanged
+                converted_word.append(char)
+        result.append(''.join(converted_word))
     
-    return ''.join(result)
+    return ' '.join(result)
