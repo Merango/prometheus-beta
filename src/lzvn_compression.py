@@ -99,29 +99,37 @@ def decompress(compressed_data):
     current_pos = 0
     
     while current_pos < len(compressed_data):
-        # Process data until exhausted
+        # Check if enough data for potential match
         if current_pos + 2 < len(compressed_data):
-            # Try to decode as match
-            offset = (compressed_data[current_pos] << 8) | compressed_data[current_pos + 1]
+            # Compute match or literal
+            high_byte = compressed_data[current_pos]
+            low_byte = compressed_data[current_pos + 1]
             length = compressed_data[current_pos + 2]
             
-            if offset > 0 and length > 0 and offset < len(decompressed):
+            # Compute offset
+            offset = (high_byte << 8) | low_byte
+            
+            # Validate match
+            if offset > 0 and length > 0 and offset <= len(decompressed):
                 # Valid match found
                 start_index = len(decompressed) - offset
                 
-                # Copy sequence
+                # Copy match sequence
+                match_sequence = bytearray()
                 for _ in range(length):
                     if 0 <= start_index < len(decompressed):
-                        decompressed.append(decompressed[start_index])
+                        match_sequence.append(decompressed[start_index])
                         start_index += 1
                     else:
-                        # Fallback to last byte or zero
-                        fill_byte = decompressed[-1] if decompressed else 0
-                        decompressed.append(fill_byte)
+                        # Use last byte added or 0
+                        match_byte = match_sequence[-1] if match_sequence else 0
+                        match_sequence.append(match_byte)
                 
+                # Extend decompressed data
+                decompressed.extend(match_sequence)
                 current_pos += 3
             else:
-                # If no valid match, treat as literal
+                # Literal byte
                 decompressed.append(compressed_data[current_pos])
                 current_pos += 1
         else:
