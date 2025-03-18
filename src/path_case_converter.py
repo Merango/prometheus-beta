@@ -28,13 +28,16 @@ def convert_to_path_case(input_string: str) -> str:
     # Convert to lowercase
     input_string = input_string.lower()
     
-    # Insert forward slash between words or camel case
-    # This regex handles both consecutive non-alphanumeric chars and 
-    # camel case by inserting a slash
-    path_case = re.sub(r'[^a-z0-9]+', '/', 
-                       re.sub(r'(?<!^)(?=[A-Z])', '/', input_string))
+    # Replace camel case with forward slash
+    path_case = re.sub(r'(?<!^)(?=[A-Z])', '/', input_string)
     
-    # Remove leading/trailing slashes and handle multiple consecutive slashes
-    path_case = re.sub(r'/+', '/', path_case).strip('/')
+    # Replace any non-alphanumeric characters with forward slash
+    path_case = re.sub(r'[^a-z0-9]+', '/', path_case)
+    
+    # Remove multiple consecutive slashes
+    path_case = re.sub(r'/+', '/', path_case)
+    
+    # Remove leading/trailing slashes
+    path_case = path_case.strip('/')
     
     return path_case
