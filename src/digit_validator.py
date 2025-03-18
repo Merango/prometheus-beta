@@ -19,6 +19,5 @@ def is_digits_only(input_string: str) -> bool:
     if not input_string:
         return False
     
-    # Use str.isnumeric() which handles unicode digits more precisely
-    # and ensures the entire string is numeric
-    return input_string.isnumeric()
+    # Specifically check that each character is a character in the ASCII digit range
+    return all(char in '0123456789' for char in input_string)
