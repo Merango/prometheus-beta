@@ -25,11 +25,12 @@ def convert_to_path_case(input_string: str) -> str:
     # Remove leading/trailing whitespace
     input_string = input_string.strip()
     
-    # Convert to lowercase
-    input_string = input_string.lower()
-    
-    # Replace camel case with forward slash
+    # Insert slash between lower-uppercase transitions 
+    # (Handling camel case by splitting words)
     path_case = re.sub(r'(?<!^)(?=[A-Z])', '/', input_string)
+    
+    # Convert to lowercase
+    path_case = path_case.lower()
     
     # Replace any non-alphanumeric characters with forward slash
     path_case = re.sub(r'[^a-z0-9]+', '/', path_case)
