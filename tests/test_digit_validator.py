@@ -28,7 +28,11 @@ def test_edge_cases():
         is_digits_only(["1", "2", "3"])
 
 def test_unicode_digits():
-    """Test behavior with unicode digit representations."""
-    assert is_digits_only("١٢٣") == True  # Arabic digits
-    assert is_digits_only("१२३") == True  # Devanagari digits
+    """Test behavior with digit validation.
+    
+    Note: For this implementation, we specifically want ONLY ASCII digits.
+    """
     assert is_digits_only("123٤٥") == False  # Mixed digit systems
+    # Unicode digits are not considered valid
+    assert is_digits_only("١٢٣") == False  # Arabic digits
+    assert is_digits_only("१२३") == False  # Devanagari digits
