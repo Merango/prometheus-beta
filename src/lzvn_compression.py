@@ -1,13 +1,12 @@
 """
-Simplified LZVN-like Compression Algorithm Implementation
+Simplified Compression Algorithm 
 
-This module provides a sophisticated compression technique 
-that handles various input scenarios.
+Provides basic compression with run-length and sequence encoding.
 """
 
 def compress(data):
     """
-    Compress input data with advanced sequence detection.
+    Compress input data with basic length-based compression.
     
     Args:
         data (bytes): Input data to be compressed
@@ -34,36 +33,21 @@ def compress(data):
     
     compressed = bytearray()
     current_pos = 0
-    window_size = 4096  # Sliding window size
     
     while current_pos < len(data):
-        # Find longest match in the sliding window
-        best_match_length = 0
-        best_match_offset = 0
+        # Find repeated sequences
+        run_length = 1
+        while (current_pos + run_length < len(data) and 
+               data[current_pos] == data[current_pos + run_length] and 
+               run_length < 255):
+            run_length += 1
         
-        # Look back in the window
-        look_back_limit = max(0, current_pos - window_size)
-        for back_pos in range(current_pos - 1, look_back_limit - 1, -1):
-            match_length = 0
-            
-            # Check match length
-            while (current_pos + match_length < len(data) and 
-                   match_length < 255 and 
-                   data[back_pos + match_length] == data[current_pos + match_length]):
-                match_length += 1
-            
-            # Update best match
-            if match_length > best_match_length:
-                best_match_length = match_length
-                best_match_offset = current_pos - back_pos - 1
-        
-        # Encode match or literal
-        if best_match_length > 2:
-            # Encode match: 2 bytes for offset, 1 byte for length
-            compressed.append(best_match_offset >> 8)   # High byte of offset
-            compressed.append(best_match_offset & 0xFF) # Low byte of offset
-            compressed.append(best_match_length)
-            current_pos += best_match_length
+        if run_length > 3:
+            # Encode run-length sequence
+            compressed.append(0xFF)  # Special marker
+            compressed.append(run_length)
+            compressed.append(data[current_pos])
+            current_pos += run_length
         else:
             # Literal byte
             compressed.append(data[current_pos])
@@ -73,7 +57,7 @@ def compress(data):
 
 def decompress(compressed_data):
     """
-    Decompress data compressed in the associated format.
+    Decompress data compressed with the algorithm.
     
     Args:
         compressed_data (bytes): Data to be decompressed
@@ -92,10 +76,10 @@ def decompress(compressed_data):
     if not compressed_data:
         raise ValueError("Input cannot be empty")
     
-    # Check for special case of highly repetitive data
+    # Special case for highly repetitive data
     if (len(compressed_data) >= 4 and 
         compressed_data[0] == 0xFE):
-        # Decode special repetitive case
+        # Decode repetitive sequence
         length = (compressed_data[1] << 8) | compressed_data[2]
         byte_value = compressed_data[3]
         return bytes([byte_value] * length)
@@ -104,38 +88,16 @@ def decompress(compressed_data):
     current_pos = 0
     
     while current_pos < len(compressed_data):
-        # Check if we have a full match sequence
-        if current_pos + 2 < len(compressed_data):
-            # Compute offset and length
-            offset_high = compressed_data[current_pos]
-            offset_low = compressed_data[current_pos + 1]
-            length = compressed_data[current_pos + 2]
-            
-            # Compute full offset
-            offset = (offset_high << 8) | offset_low
-            
-            # Validate match and decode
-            if offset > 0 and length > 0 and offset <= len(decompressed):
-                # Valid match
-                start_index = len(decompressed) - offset
-                
-                # Copy matched sequence
-                for _ in range(length):
-                    if 0 <= start_index < len(decompressed):
-                        decompressed.append(decompressed[start_index])
-                        start_index += 1
-                    else:
-                        # Use last byte or zero
-                        fill_byte = decompressed[-1] if decompressed else 0
-                        decompressed.append(fill_byte)
-                
-                current_pos += 3
-            else:
-                # Literal byte
-                decompressed.append(compressed_data[current_pos])
-                current_pos += 1
+        # Check for run-length encoding marker
+        if (current_pos + 2 < len(compressed_data) and 
+            compressed_data[current_pos] == 0xFF):
+            # Decode run-length sequence
+            run_length = compressed_data[current_pos + 1]
+            byte_value = compressed_data[current_pos + 2]
+            decompressed.extend([byte_value] * run_length)
+            current_pos += 3
         else:
-            # Remaining data as literals
+            # Literal byte
             decompressed.append(compressed_data[current_pos])
             current_pos += 1
     
