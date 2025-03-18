@@ -2,8 +2,8 @@ def symmetric_difference(list1, list2):
     """
     Find the symmetric difference between two lists.
     
-    The symmetric difference is a set of elements which are in either of the lists,
-    but not in their intersection.
+    The symmetric difference is a list of elements which are in either of the lists,
+    but not in their intersection. Duplicates are preserved.
     
     Args:
         list1 (list): First input list
@@ -19,9 +19,17 @@ def symmetric_difference(list1, list2):
     if not isinstance(list1, list) or not isinstance(list2, list):
         raise TypeError("Inputs must be lists")
     
-    # Convert lists to sets for efficient symmetric difference calculation
-    set1 = set(list1)
-    set2 = set(list2)
+    # Find symmetric difference by manually filtering
+    diff = []
     
-    # Calculate symmetric difference and convert back to list
-    return list(set1.symmetric_difference(set2))
+    # Add elements from list1 not in list2
+    for item in list1:
+        if item not in list2 or (list2.count(item) < list1.count(item)):
+            diff.append(item)
+    
+    # Add elements from list2 not in list1
+    for item in list2:
+        if item not in list1 or (list1.count(item) < list2.count(item)):
+            diff.append(item)
+    
+    return diff
