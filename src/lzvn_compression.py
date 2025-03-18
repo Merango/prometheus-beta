@@ -99,29 +99,29 @@ def decompress(compressed_data):
     current_pos = 0
     
     while current_pos < len(compressed_data):
-        # Check if match pattern is possible
+        # Process data until exhausted
         if current_pos + 2 < len(compressed_data):
-            # Decode potential match
+            # Try to decode as match
             offset = (compressed_data[current_pos] << 8) | compressed_data[current_pos + 1]
             length = compressed_data[current_pos + 2]
             
-            if offset > 0 and length > 0:
-                # Compute start position
-                start_index = len(decompressed) - offset - 1
+            if offset > 0 and length > 0 and offset < len(decompressed):
+                # Valid match found
+                start_index = len(decompressed) - offset
                 
-                # Copy matched sequence
-                for i in range(length):
-                    # Ensure valid access to existing decompressed data
-                    if 0 <= start_index + i < len(decompressed):
-                        decompressed.append(decompressed[start_index + i])
+                # Copy sequence
+                for _ in range(length):
+                    if 0 <= start_index < len(decompressed):
+                        decompressed.append(decompressed[start_index])
+                        start_index += 1
                     else:
-                        # If offset is too large, use zero or last available byte
+                        # Fallback to last byte or zero
                         fill_byte = decompressed[-1] if decompressed else 0
                         decompressed.append(fill_byte)
                 
                 current_pos += 3
             else:
-                # Literal byte
+                # If no valid match, treat as literal
                 decompressed.append(compressed_data[current_pos])
                 current_pos += 1
         else:
