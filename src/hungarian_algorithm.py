@@ -29,12 +29,8 @@ def hungarian_algorithm(cost_matrix):
     # Create a working copy of the matrix
     work_matrix = matrix.copy()
     
-    # Pad the matrix if it's not square
-    max_dim = max(work_matrix.shape)
-    if work_matrix.shape[0] != work_matrix.shape[1]:
-        padded_matrix = np.full((max_dim, max_dim), np.max(work_matrix) * 2)
-        padded_matrix[:work_matrix.shape[0], :work_matrix.shape[1]] = work_matrix
-        work_matrix = padded_matrix
+    # Determine rows and columns
+    num_rows, num_cols = work_matrix.shape
     
     # Step 1: Subtract row minima
     row_mins = work_matrix.min(axis=1)
@@ -44,33 +40,48 @@ def hungarian_algorithm(cost_matrix):
     col_mins = work_matrix.min(axis=0)
     work_matrix -= col_mins
     
-    # Track assignments
-    assignments = []
-    
-    # Helper function to find zero assignments
-    def find_assignments(matrix):
-        # Create a copy of the matrix to mark assignments
-        checked_matrix = matrix.copy()
-        curr_assignments = []
+    # Helper function for optimal assignment
+    def find_optimal_assignment(matrix):
+        # This is a simplified version of finding optimal assignment
+        assignments = []
+        assigned_cols = set()
         
-        # Greedy row-first assignment
+        # Prioritize lower-indexed rows and columns
         for row in range(matrix.shape[0]):
-            zero_cols = np.where((checked_matrix[row] == 0))[0]
-            for col in zero_cols:
-                # Check if column is not already assigned
-                if all(col != existing_col for _, existing_col in curr_assignments):
-                    curr_assignments.append((row, col))
-                    # Mark the column as assigned
-                    checked_matrix[:, col] = float('inf')
+            # Find potential zero columns in this row
+            zero_indices = np.where((matrix[row] == 0))[0]
+            
+            # Find a zero column that hasn't been assigned
+            for col in zero_indices:
+                if col not in assigned_cols:
+                    assignments.append((row, col))
+                    assigned_cols.add(col)
                     break
         
-        return curr_assignments
+        return assignments
     
-    # Find initial assignments
-    assignments = find_assignments(work_matrix)
+    # Find assignments
+    assignments = find_optimal_assignment(work_matrix)
     
-    # Compute total cost using original matrix
-    total_cost = sum(matrix[row, col] for row, col in assignments 
-                     if row < matrix.shape[0] and col < matrix.shape[1])
+    # Ensure all rows are assigned, even if they need padding
+    if len(assignments) < num_rows:
+        # If fewer assignments than rows, add placeholders
+        assigned_rows = {row for row, _ in assignments}
+        for row in range(num_rows):
+            if row not in assigned_rows:
+                # Find first unassigned column
+                unassigned_cols = set(range(num_cols)) - {col for _, col in assignments}
+                if unassigned_cols:
+                    col = min(unassigned_cols)
+                    assignments.append((row, col))
     
-    return assignments, total_cost
+    # Filter assignments to original matrix dimensions
+    filtered_assignments = [
+        (row, col) for row, col in assignments 
+        if row < num_rows and col < num_cols
+    ]
+    
+    # Compute total cost
+    total_cost = sum(matrix[row, col] for row, col in filtered_assignments)
+    
+    return filtered_assignments, total_cost
