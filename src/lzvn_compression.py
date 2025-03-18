@@ -1,18 +1,13 @@
 """
-LZVN (Lempel-Ziv Variant) Compression Algorithm Implementation
+Simplified LZVN-like Compression Algorithm Implementation
 
-This module provides a basic implementation of the LZVN compression algorithm.
-LZVN is a variant of Lempel-Ziv compression designed for efficiency and simplicity.
-
-Key characteristics:
-- Uses a sliding window approach
-- Supports basic compression and decompression
-- Handles various input scenarios
+This module provides a basic run-length encoding (RLE) based compression approach.
+While not a full LZVN implementation, it demonstrates compression principles.
 """
 
 def compress(data):
     """
-    Compress input data using a variant of Lempel-Ziv compression.
+    Compress input data using a simple run-length encoding approach.
     
     Args:
         data (bytes): Input data to be compressed
@@ -31,51 +26,33 @@ def compress(data):
     if not data:
         raise ValueError("Input cannot be empty")
     
-    # Compression implementation
     compressed = bytearray()
-    current_pos = 0
-    window_size = 4096
+    i = 0
     
-    while current_pos < len(data):
-        # Find longest match in the sliding window
-        best_match_length = 0
-        best_match_offset = 0
+    while i < len(data):
+        # Find run of identical bytes
+        run_length = 1
+        while (i + run_length < len(data) and 
+               data[i] == data[i + run_length] and 
+               run_length < 255):
+            run_length += 1
         
-        # Limit lookback to avoid excessive computation
-        look_back_limit = max(0, current_pos - window_size)
-        
-        # Search for longest match
-        for back_pos in range(current_pos - 1, look_back_limit - 1, -1):
-            match_length = 0
-            
-            # Check match length
-            while (current_pos + match_length < len(data) and 
-                   match_length < 255 and 
-                   data[back_pos + match_length] == data[current_pos + match_length]):
-                match_length += 1
-            
-            # Update best match if longer
-            if match_length > best_match_length:
-                best_match_length = match_length
-                best_match_offset = current_pos - back_pos - 1
-        
-        # Encode match or literal
-        if best_match_length > 2:
-            # Encode match: 2 bytes offset, 1 byte length
-            compressed.append(best_match_offset >> 8)   # High byte
-            compressed.append(best_match_offset & 0xFF) # Low byte
-            compressed.append(best_match_length)
-            current_pos += best_match_length
+        if run_length > 3:
+            # Encode run-length encoding
+            compressed.append(0xFF)  # Special marker
+            compressed.append(run_length)
+            compressed.append(data[i])
+            i += run_length
         else:
-            # Encode literal
-            compressed.append(data[current_pos])
-            current_pos += 1
+            # Literal byte
+            compressed.append(data[i])
+            i += 1
     
     return bytes(compressed)
 
 def decompress(compressed_data):
     """
-    Decompress data compressed with LZVN compression.
+    Decompress data compressed with the algorithm.
     
     Args:
         compressed_data (bytes): Data to be decompressed
@@ -94,47 +71,21 @@ def decompress(compressed_data):
     if not compressed_data:
         raise ValueError("Input cannot be empty")
     
-    # Decompression implementation
     decompressed = bytearray()
-    current_pos = 0
+    i = 0
     
-    while current_pos < len(compressed_data):
-        # Check if enough data for potential match
-        if current_pos + 2 < len(compressed_data):
-            # Compute match or literal
-            high_byte = compressed_data[current_pos]
-            low_byte = compressed_data[current_pos + 1]
-            length = compressed_data[current_pos + 2]
+    while i < len(compressed_data):
+        if i + 2 < len(compressed_data) and compressed_data[i] == 0xFF:
+            # Run-length encoding marker
+            run_length = compressed_data[i + 1]
+            byte_value = compressed_data[i + 2]
             
-            # Compute offset
-            offset = (high_byte << 8) | low_byte
-            
-            # Validate match
-            if offset > 0 and length > 0 and offset <= len(decompressed):
-                # Valid match found
-                start_index = len(decompressed) - offset
-                
-                # Copy match sequence
-                match_sequence = bytearray()
-                for _ in range(length):
-                    if 0 <= start_index < len(decompressed):
-                        match_sequence.append(decompressed[start_index])
-                        start_index += 1
-                    else:
-                        # Use last byte added or 0
-                        match_byte = match_sequence[-1] if match_sequence else 0
-                        match_sequence.append(match_byte)
-                
-                # Extend decompressed data
-                decompressed.extend(match_sequence)
-                current_pos += 3
-            else:
-                # Literal byte
-                decompressed.append(compressed_data[current_pos])
-                current_pos += 1
+            # Add repeated byte sequence
+            decompressed.extend([byte_value] * run_length)
+            i += 3
         else:
-            # Remaining data as literals
-            decompressed.append(compressed_data[current_pos])
-            current_pos += 1
+            # Literal byte
+            decompressed.append(compressed_data[i])
+            i += 1
     
     return bytes(decompressed)
