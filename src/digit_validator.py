@@ -19,5 +19,6 @@ def is_digits_only(input_string: str) -> bool:
     if not input_string:
         return False
     
-    # Use all() with str.isdigit() to check if every character is a digit
-    return all(char.isdigit() for char in input_string)
+    # Use str.isnumeric() which handles unicode digits more precisely
+    # and ensures the entire string is numeric
+    return input_string.isnumeric()
