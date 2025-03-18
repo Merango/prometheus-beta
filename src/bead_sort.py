@@ -30,19 +30,19 @@ def bead_sort(arr):
     # Find the maximum element to determine the number of beads
     max_val = max(arr)
     
-    # Create a 2D representation of beads
-    beads = [[1 if x > j else 0 for x in arr] for j in range(max_val)]
+    # Create a column for each input number representing its value
+    beads = [[1] * x + [0] * (max_val - x) for x in arr]
     
-    # Let the beads "drop"
+    # Simulate gravity sorting
     for j in range(max_val):
-        # Count beads in each column
-        col_sum = sum(row[j] for row in beads)
+        # Count number of beads in this row
+        col_beads = sum(row[j] for row in beads)
         
-        # Rearrange beads from bottom
-        for i in range(len(arr)):
-            beads[j][i] = 1 if i < col_sum else 0
+        # Update columns from bottom to top
+        for i in range(len(beads)):
+            beads[i][j] = 1 if j < col_beads else 0
     
     # Reconstruct the sorted array
-    sorted_arr = [sum(row[i] for row in beads) for i in range(len(arr))]
+    sorted_arr = [sum(row) for row in beads]
     
     return sorted_arr
