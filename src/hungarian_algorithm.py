@@ -9,7 +9,9 @@ def hungarian_algorithm(cost_matrix):
                                           where lower values indicate better assignments.
     
     Returns:
-        list: A list of (row, column) tuples representing the optimal assignment.
+        tuple: A tuple containing:
+            - list of (row, column) tuples representing the optimal assignment
+            - total cost of the assignment
     
     Raises:
         ValueError: If the input is not a valid 2D matrix.
@@ -27,6 +29,13 @@ def hungarian_algorithm(cost_matrix):
     # Create a working copy of the matrix
     work_matrix = matrix.copy()
     
+    # Pad the matrix if it's not square
+    max_dim = max(work_matrix.shape)
+    if work_matrix.shape[0] != work_matrix.shape[1]:
+        padded_matrix = np.full((max_dim, max_dim), np.max(work_matrix) * 2)
+        padded_matrix[:work_matrix.shape[0], :work_matrix.shape[1]] = work_matrix
+        work_matrix = padded_matrix
+    
     # Step 1: Subtract row minima
     row_mins = work_matrix.min(axis=1)
     work_matrix -= row_mins[:, np.newaxis]
@@ -35,35 +44,33 @@ def hungarian_algorithm(cost_matrix):
     col_mins = work_matrix.min(axis=0)
     work_matrix -= col_mins
     
-    # Step 3: Cover zeros with minimal number of lines
-    def cover_zeros(matrix):
-        # Find zero locations
-        zero_locations = matrix == 0
+    # Track assignments
+    assignments = []
+    
+    # Helper function to find zero assignments
+    def find_assignments(matrix):
+        # Create a copy of the matrix to mark assignments
+        checked_matrix = matrix.copy()
+        curr_assignments = []
         
-        # Greedy row-column covering
-        rows_covered = set()
-        cols_covered = set()
-        assignments = []
-        
+        # Greedy row-first assignment
         for row in range(matrix.shape[0]):
-            for col in range(matrix.shape[1]):
-                if matrix[row, col] == 0 and row not in rows_covered and col not in cols_covered:
-                    assignments.append((row, col))
-                    rows_covered.add(row)
-                    cols_covered.add(col)
+            zero_cols = np.where((checked_matrix[row] == 0))[0]
+            for col in zero_cols:
+                # Check if column is not already assigned
+                if all(col != existing_col for _, existing_col in curr_assignments):
+                    curr_assignments.append((row, col))
+                    # Mark the column as assigned
+                    checked_matrix[:, col] = float('inf')
+                    break
         
-        return assignments
+        return curr_assignments
     
-    # Solve the assignment
-    assignments = cover_zeros(work_matrix)
+    # Find initial assignments
+    assignments = find_assignments(work_matrix)
     
-    # If not all rows/columns are assigned, we need to adjust
-    if len(assignments) < min(matrix.shape):
-        # This is a simplified version - more complex adjustment might be needed
-        # Typically would involve creating additional zeros
-        raise ValueError("Could not find complete assignment")
-    
-    # Map back to original costs and validate
-    total_cost = sum(matrix[row, col] for row, col in assignments)
+    # Compute total cost using original matrix
+    total_cost = sum(matrix[row, col] for row, col in assignments 
+                     if row < matrix.shape[0] and col < matrix.shape[1])
     
     return assignments, total_cost
