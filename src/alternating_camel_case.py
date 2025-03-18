@@ -31,12 +31,14 @@ def to_alternating_camel_case(string: str) -> str:
     
     # Convert to alternating case
     result = []
-    for i, char in enumerate(string):
-        # Even indices (0, 2, 4...) are uppercase
-        # Odd indices (1, 3, 5...) are lowercase
-        if i % 2 == 0:
-            result.append(char.upper())
+    should_upper = True
+    for char in string:
+        if char.isalpha():
+            # For alphabetic characters, alternate case
+            result.append(char.upper() if should_upper else char.lower())
+            should_upper = not should_upper
         else:
-            result.append(char.lower())
+            # For non-alphabetic characters, keep as-is
+            result.append(char)
     
     return ''.join(result)
