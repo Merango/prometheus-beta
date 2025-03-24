@@ -2,8 +2,7 @@ import os
 import pytest
 import requests
 import tempfile
-import urllib.parse
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from src.download_file import download_file
 
@@ -21,42 +20,36 @@ class MockResponse:
     def iter_content(self, chunk_size=1):
         yield self.content
 
-@pytest.fixture
-def temp_download_dir():
-    """Fixture to create a temporary download directory."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
-
-def test_download_file_default_filename(temp_download_dir, monkeypatch):
+def test_download_file_default_filename(tmp_path):
     """Test downloading a file with default filename."""
     test_url = 'http://example.com/testfile.txt'
     mock_response = MockResponse(content=b'test download content')
 
     with patch('requests.get', return_value=mock_response):
-        with monkeypatch.chdir(temp_download_dir):
-            result_path = download_file(test_url)
-            
-            assert os.path.exists(result_path)
-            assert os.path.basename(result_path) == 'testfile.txt'
-            
-            with open(result_path, 'rb') as f:
-                assert f.read() == b'test download content'
+        os.chdir(tmp_path)
+        result_path = download_file(test_url)
+        
+        assert os.path.exists(result_path)
+        assert os.path.basename(result_path) == 'testfile.txt'
+        
+        with open(result_path, 'rb') as f:
+            assert f.read() == b'test download content'
 
-def test_download_file_with_custom_path(temp_download_dir, monkeypatch):
+def test_download_file_with_custom_path(tmp_path):
     """Test downloading a file with a custom destination path."""
     test_url = 'http://example.com/testfile.txt'
-    custom_path = os.path.join(temp_download_dir, 'custom_download.txt')
+    custom_path = os.path.join(tmp_path, 'custom_download.txt')
     mock_response = MockResponse(content=b'test custom content')
 
     with patch('requests.get', return_value=mock_response):
-        with monkeypatch.chdir(temp_download_dir):
-            result_path = download_file(test_url, custom_path)
-            
-            assert result_path == os.path.abspath(custom_path)
-            assert os.path.exists(result_path)
-            
-            with open(result_path, 'rb') as f:
-                assert f.read() == b'test custom content'
+        os.chdir(tmp_path)
+        result_path = download_file(test_url, custom_path)
+        
+        assert result_path == os.path.abspath(custom_path)
+        assert os.path.exists(result_path)
+        
+        with open(result_path, 'rb') as f:
+            assert f.read() == b'test custom content'
 
 def test_download_file_invalid_url():
     """Test handling of invalid URL."""
@@ -79,15 +72,15 @@ def test_download_file_http_error():
         with pytest.raises(RuntimeError):
             download_file('http://example.com/404')
 
-def test_download_file_ensures_download_directory(temp_download_dir, monkeypatch):
+def test_download_file_ensures_download_directory(tmp_path):
     """Test that download directory is created if it doesn't exist."""
     test_url = 'http://example.com/testfile.txt'
-    download_path = os.path.join(temp_download_dir, 'new_dir', 'testfile.txt')
+    download_path = os.path.join(tmp_path, 'new_dir', 'testfile.txt')
     mock_response = MockResponse(content=b'test directory creation')
 
     with patch('requests.get', return_value=mock_response):
-        with monkeypatch.chdir(temp_download_dir):
-            result_path = download_file(test_url, download_path)
-            
-            assert os.path.exists(result_path)
-            assert os.path.exists(os.path.dirname(result_path))
+        os.chdir(tmp_path)
+        result_path = download_file(test_url, download_path)
+        
+        assert os.path.exists(result_path)
+        assert os.path.exists(os.path.dirname(result_path))
