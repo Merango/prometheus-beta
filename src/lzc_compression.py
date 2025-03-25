@@ -88,6 +88,10 @@ def lzc_decompress(compressed_data):
     if not all(isinstance(x, int) for x in compressed_data):
         raise TypeError("All elements must be integers")
 
+    # Check for codes outside of valid range
+    if any(code < 0 or code >= 65536 for code in compressed_data):
+        raise ValueError("Compression codes must be between 0 and 65535")
+
     # Initialize dictionary with single-byte entries
     dictionary = {i: bytes([i]) for i in range(256)}
     next_code = 256
@@ -95,19 +99,22 @@ def lzc_decompress(compressed_data):
     # Decompression variables
     decompressed = []
     previous_code = compressed_data[0]
+    
+    # Validate first code
+    if previous_code not in dictionary:
+        raise ValueError(f"Invalid first compression code: {previous_code}")
+    
     result = dictionary[previous_code]
     decompressed.extend(result)
 
     # Decompression algorithm
     for code in compressed_data[1:]:
-        # Check if code is in dictionary
-        if code in dictionary:
-            entry = dictionary[code]
-        elif code == next_code:
-            # Special case: new sequence not yet in dictionary
-            entry = dictionary[previous_code] + bytes([dictionary[previous_code][0]])
-        else:
+        # Validate code
+        if code not in dictionary:
             raise ValueError(f"Invalid compression code: {code}")
+
+        # Get the current entry
+        entry = dictionary[code]
         
         # Extend decompressed result
         decompressed.extend(entry)
