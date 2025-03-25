@@ -17,15 +17,15 @@ def decrypt_file(encrypted_file_path, key):
         ValueError: If the key is invalid or None
         TypeError: If key is not bytes or str
     """
-    # Validate input
+    # Validate input first
+    if key is None:
+        raise ValueError("Encryption key cannot be None")
+    
     if not encrypted_file_path:
         raise ValueError("Encrypted file path cannot be empty")
     
     if not os.path.exists(encrypted_file_path):
         raise FileNotFoundError(f"File not found: {encrypted_file_path}")
-    
-    if key is None:
-        raise ValueError("Encryption key cannot be None")
     
     # Convert key to bytes if it's a string
     if isinstance(key, str):
