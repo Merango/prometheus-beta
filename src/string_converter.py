@@ -30,16 +30,19 @@ def to_alternating_path_case(input_string):
     if not input_string:
         return ""
     
-    # Split the string by common separators
-    separators = [' ', '_', '-']
-    for sep in separators:
-        if sep in input_string:
-            # Split and capitalize every other word
-            words = input_string.split(sep)
-            capitalized = [word.capitalize() for i, word in enumerate(words)]
-            
-            # Use hyphen as the path case separator
-            return '-'.join(capitalized)
+    # Replace multiple separators with a single hyphen
+    import re
+    normalized = re.sub(r'[ _-]+', '-', input_string)
     
-    # If no separators found, capitalize the first letter
-    return input_string.capitalize()
+    # Split by hyphen
+    words = normalized.split('-')
+    
+    # Alternate capitalization
+    result_words = [words[0].capitalize()]
+    for word in words[1::2]:
+        result_words.append(word.capitalize())
+    for word in words[2::2]:
+        result_words.append(word.lower())
+    
+    # Join with hyphen
+    return '-'.join(result_words)
