@@ -31,17 +31,12 @@ def dijkstra(graph: Dict[str, Dict[str, int]], start: str) -> Tuple[Dict[str, in
     # Priority queue to store nodes to visit
     pq = [(0, start)]
     
-    # Track visited nodes to prevent redundant processing
-    visited = set()
-    
     while pq:
         current_distance, current_node = heapq.heappop(pq)
         
-        # Skip if node already processed
-        if current_node in visited:
+        # Skip if we've found a shorter path already
+        if current_distance > distances[current_node]:
             continue
-        
-        visited.add(current_node)
         
         # Check if current node's neighbors can be improved
         for neighbor, weight in graph[current_node].items():
