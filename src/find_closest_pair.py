@@ -23,18 +23,19 @@ def find_closest_pair(numbers):
     min_diff = float('inf')
     closest_pair = None
     
-    # Compare adjacent numbers in the sorted list
-    for i in range(len(sorted_nums) - 1):
-        current_diff = abs(sorted_nums[i] - sorted_nums[i+1])
-        
-        # Update closest pair if current difference is smaller
-        if current_diff < min_diff:
-            min_diff = current_diff
-            closest_pair = (sorted_nums[i], sorted_nums[i+1])
-        # If differences are equal, choose the pair with smaller numbers
-        elif current_diff == min_diff:
-            candidate_pair = (sorted_nums[i], sorted_nums[i+1])
-            # Compare pairs lexicographically
-            closest_pair = min(closest_pair, candidate_pair)
+    # Compare all pairs of numbers to handle any combination
+    for i in range(len(sorted_nums)):
+        for j in range(i+1, len(sorted_nums)):
+            current_diff = abs(sorted_nums[i] - sorted_nums[j])
+            
+            # Update closest pair if current difference is smaller
+            if current_diff < min_diff:
+                min_diff = current_diff
+                closest_pair = (sorted_nums[i], sorted_nums[j])
+            # If differences are equal, choose the pair with smaller numbers
+            elif current_diff == min_diff:
+                candidate_pair = (sorted_nums[i], sorted_nums[j])
+                # Compare pairs lexicographically
+                closest_pair = min(closest_pair, candidate_pair)
     
     return closest_pair
