@@ -17,7 +17,7 @@ def decompress_bzip2_file(input_path, output_path=None):
         FileNotFoundError: If input file does not exist.
         PermissionError: If there are permission issues reading/writing files.
         IsADirectoryError: If input path is a directory.
-        bz2.BZ2Error: If there are issues with bzip2 decompression.
+        OSError: If there are issues with bzip2 decompression.
     """
     # Validate input file exists and is a file
     if not os.path.exists(input_path):
@@ -42,5 +42,5 @@ def decompress_bzip2_file(input_path, output_path=None):
 
     except PermissionError:
         raise PermissionError(f"Permission denied when reading {input_path} or writing to {output_path}")
-    except bz2.BZ2Error as e:
-        raise bz2.BZ2Error(f"Bzip2 decompression error: {e}")
+    except OSError as e:
+        raise OSError(f"Bzip2 decompression error: {e}")
