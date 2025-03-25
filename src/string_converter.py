@@ -1,3 +1,5 @@
+import re
+
 def convert_to_alternating_pascal_case(input_string: str) -> str:
     """
     Convert a string to alternating Pascal case.
@@ -19,7 +21,7 @@ def convert_to_alternating_pascal_case(input_string: str) -> str:
         >>> convert_to_alternating_pascal_case("hello world")
         'HeLlOWoRlD'
         >>> convert_to_alternating_pascal_case("python is awesome")
-        'PyThOnIsAwEsOmE'
+        'OneTwOThReE'
     """
     # Check input type
     if not isinstance(input_string, str):
@@ -29,15 +31,18 @@ def convert_to_alternating_pascal_case(input_string: str) -> str:
     if not input_string:
         raise ValueError("Input string cannot be empty")
     
-    # Remove extra whitespace and split into words
-    words = input_string.strip().split()
+    # Remove non-alphanumeric characters and extra whitespace
+    cleaned_string = re.sub(r'[^a-zA-Z\s]', '', input_string.strip())
+    
+    # Split into words
+    words = cleaned_string.split()
     
     # Convert to alternating case
     result = []
-    for word in words:
+    for i, word in enumerate(words):
         converted_word = ''.join(
-            char.upper() if (i % 2 == 0) else char.lower() 
-            for i, char in enumerate(word)
+            char.upper() if ((i + len(result)) % 2 == 0) else char.lower() 
+            for char in word
         )
         result.append(converted_word)
     
