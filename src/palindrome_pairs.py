@@ -15,16 +15,16 @@ def find_palindrome_pairs(words):
         """Check if a string is a palindrome."""
         return s == s[::-1]
     
-    result = set()
+    result = []
     n = len(words)
     
     for i in range(n):
         for j in range(n):
             if i != j:
-                # Check if concatenating words in both orders forms a palindrome
+                # Check if concatenating words forms a palindrome
                 concat1 = words[i] + words[j]
                 
                 if is_palindrome(concat1):
-                    result.add((min(i, j), max(i, j)))
+                    result.append([i, j])
     
-    return [list(pair) for pair in result]
+    return result
