@@ -25,6 +25,6 @@ def find_palindrome_pairs(words):
                 concat1 = words[i] + words[j]
                 
                 if is_palindrome(concat1):
-                    result.add((i, j))
+                    result.add((min(i, j), max(i, j)))
     
     return [list(pair) for pair in result]
