@@ -11,29 +11,30 @@ def filter_primes(numbers):
     Notes:
         - 0 and 1 are not considered prime numbers
         - Negative numbers are checked for primality by their absolute value
+        - Negative primes are included in the result
     """
     def is_prime(n):
         # Handle special cases
         if n < 2:
             return False
         
-        # Check for primality using absolute value
-        n = abs(n)
+        # Take absolute value for primality check
+        abs_n = abs(n)
         
-        # Optimize primality check
-        if n == 2:
+        # Check for primality of absolute value
+        if abs_n == 2:
             return True
         
         # Even numbers > 2 are not prime
-        if n % 2 == 0:
+        if abs_n % 2 == 0:
             return False
         
-        # Check odd divisors up to square root of n
-        for i in range(3, int(n**0.5) + 1, 2):
-            if n % i == 0:
+        # Check odd divisors up to square root of absolute value
+        for i in range(3, int(abs_n**0.5) + 1, 2):
+            if abs_n % i == 0:
                 return False
         
         return True
     
-    # Return list of prime numbers
+    # Return list of prime numbers, preserving sign
     return [num for num in numbers if is_prime(num)]
