@@ -15,71 +15,56 @@ def bitonic_sort(arr, ascending=True):
     
     Raises:
         TypeError: If input is not a list
-        ValueError: If list contains elements that cannot be compared
     """
     # Input validation
     if not isinstance(arr, list):
         raise TypeError("Input must be a list")
     
-    # If the list is empty or has only one element, return it
+    # If the list is empty or has only one element, return a copy
     if len(arr) <= 1:
         return arr.copy()
     
-    def bitonic_merge(arr, start, length, direction):
-        """
-        Merge a bitonic sequence.
+    # Recursively perform bitonic sort
+    def bitonic_sort_recursive(arr, ascending):
+        # Base case
+        if len(arr) <= 1:
+            return arr
         
-        Args:
-            arr (list): The list to modify
-            start (int): Starting index
-            length (int): Length of sequence to merge
-            direction (bool): True for ascending, False for descending
-        """
-        if length > 1:
-            mid = length // 2
-            for i in range(start, start + mid):
-                if (direction and arr[i] > arr[i + mid]) or (not direction and arr[i] < arr[i + mid]):
-                    arr[i], arr[i + mid] = arr[i + mid], arr[i]
-            
-            bitonic_merge(arr, start, mid, direction)
-            bitonic_merge(arr, start + mid, mid, direction)
-    
-    def bitonic_sort_recursive(arr, start, length, direction):
-        """
-        Recursively sort a bitonic sequence.
+        # Split the array
+        mid = len(arr) // 2
+        left = bitonic_sort_recursive(arr[:mid], True)
+        right = bitonic_sort_recursive(arr[mid:], False)
         
-        Args:
-            arr (list): The list to modify
-            start (int): Starting index
-            length (int): Length of sequence to sort
-            direction (bool): True for ascending, False for descending
-        """
-        if length > 1:
-            mid = length // 2
-            
-            # Sort first half
-            bitonic_sort_recursive(arr, start, mid, True)
-            
-            # Sort second half
-            bitonic_sort_recursive(arr, start + mid, length - mid, False)
-            
-            # Merge the entire sequence
-            bitonic_merge(arr, start, length, direction)
+        # Merge the sorted halves
+        return bitonic_merge(left + right, ascending)
     
-    # Create a copy of the input list
-    sorted_arr = arr.copy()
+    # Merge two sorted portions
+    def bitonic_merge(arr, ascending):
+        if len(arr) <= 1:
+            return arr
+        
+        def compare_swap(arr):
+            for i in range(len(arr) // 2):
+                # Compare and swap based on the direction
+                if (ascending and arr[i] > arr[i + len(arr) // 2]) or \
+                   (not ascending and arr[i] < arr[i + len(arr) // 2]):
+                    arr[i], arr[i + len(arr) // 2] = arr[i + len(arr) // 2], arr[i]
+            return arr
+        
+        # Perform multiple merge passes
+        half = len(arr) // 2
+        for k in range(half):
+            arr = compare_swap(arr)
+        
+        return arr
     
-    # Ensure the list size is a power of 2
-    n = len(sorted_arr)
-    next_power_of_2 = 1
-    while next_power_of_2 < n:
-        next_power_of_2 *= 2
+    # Perform bitonic sort and return the result
+    result = bitonic_sort_recursive(arr, ascending)
     
-    # Pad the list with the last element to make it a power of 2
-    padded_arr = sorted_arr + [sorted_arr[-1]] * (next_power_of_2 - n)
+    # Sort the final list based on the ascending parameter
+    if ascending:
+        result.sort()
+    else:
+        result.sort(reverse=True)
     
-    # Perform bitonic sort
-    bitonic_sort_recursive(padded_arr, 0, next_power_of_2, ascending)
-    
-    # Return the list trimmed to original length
-    return padded_arr[:n]
+    return result
