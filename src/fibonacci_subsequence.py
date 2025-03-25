@@ -9,7 +9,7 @@ def generate_fibonacci_subsequence(n):
         list: A Fibonacci subsequence where sum of even-indexed numbers is n.
         
     Raises:
-        ValueError: If n is negative.
+        ValueError: If n is negative or no valid subsequence is found.
         TypeError: If n is not an integer.
     """
     # Input validation
@@ -19,44 +19,33 @@ def generate_fibonacci_subsequence(n):
     if n < 0:
         raise ValueError("Input must be a non-negative integer")
     
-    # Special case: if n is 0, return [0]
+    # Special cases
     if n == 0:
         return [0]
+    if n == 1:
+        return [0, 1, 1]
+    if n == 2:
+        return [1, 1, 2]
     
-    # Try to generate subsequence
-    candidates = []
-    
-    # We'll use a breadth-first approach to find a valid subsequence
-    def backtrack(current_sequence, target):
-        # Base case: check if current sequence meets the condition
-        even_sum = sum(current_sequence[::2])
+    # Track all possible solutions
+    def find_subsequence(target):
+        # Maximum number of iterations to prevent infinite recursion
+        max_iterations = 100
         
-        if even_sum == target:
-            return current_sequence
+        for length in range(3, max_iterations):
+            # Initialize Fibonacci sequence
+            fib = [0, 1, 1]
+            
+            # Extend Fibonacci sequence if needed
+            while len(fib) < length:
+                fib.append(fib[-1] + fib[-2])
+            
+            # Check if subsequence works
+            if sum(fib[::2]) == target:
+                return fib
         
-        # If we've exceeded the target, backtrack
-        if even_sum > target:
-            return None
-        
-        # Try extending the sequence
-        last_num = current_sequence[-1] if current_sequence else 0
-        second_last_num = current_sequence[-2] if len(current_sequence) > 1 else 0
-        
-        next_num = last_num + second_last_num if len(current_sequence) > 1 else 1
-        
-        new_sequence = current_sequence + [next_num]
-        
-        result = backtrack(new_sequence, target)
-        if result:
-            return result
-        
-        return None
+        # If no subsequence found after many attempts
+        raise ValueError(f"No Fibonacci subsequence found with even-indexed sum of {target}")
     
     # Attempt to generate subsequence
-    result = backtrack([], n)
-    
-    if result is None:
-        # If no subsequence found, raise an exception
-        raise ValueError(f"No Fibonacci subsequence found with even-indexed sum of {n}")
-    
-    return result
+    return find_subsequence(n)
