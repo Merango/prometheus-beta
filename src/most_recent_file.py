@@ -24,6 +24,12 @@ def find_most_recent_file(directory: Union[str, os.PathLike]) -> Optional[str]:
         raise NotADirectoryError(f"{directory} is not a directory")
     
     try:
+        # Check if directory is readable
+        os.listdir(directory)
+    except PermissionError:
+        raise PermissionError(f"Cannot access directory {directory}: Permission denied")
+    
+    try:
         # Get all files in the directory
         files = [
             os.path.join(directory, f) for f in os.listdir(directory) 
@@ -37,6 +43,6 @@ def find_most_recent_file(directory: Union[str, os.PathLike]) -> Optional[str]:
         # Find the most recently modified file
         return max(files, key=os.path.getmtime)
     
-    except (PermissionError, OSError) as e:
-        # Handle permission or other OS-related errors
+    except (OSError) as e:
+        # Handle other OS-related errors
         raise PermissionError(f"Cannot access directory {directory}: {str(e)}")
