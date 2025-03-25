@@ -39,10 +39,10 @@ def convert_to_alternating_pascal_case(input_string: str) -> str:
     
     # Convert to alternating case
     result = []
-    for i, word in enumerate(words):
+    for word in words:
         converted_word = []
-        for j, char in enumerate(word):
-            if (i + j) % 2 == 0:
+        for i, char in enumerate(word):
+            if i % 2 == 0:
                 converted_word.append(char.upper())
             else:
                 converted_word.append(char.lower())
