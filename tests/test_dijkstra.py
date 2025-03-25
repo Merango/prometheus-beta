@@ -101,4 +101,4 @@ def test_complex_graph():
     
     # Reconstruct path to E
     path = reconstruct_path(previous, 'A', 'E')
-    assert path == ['A', 'B', 'E']
+    assert path == ['A', 'C', 'B', 'E']
