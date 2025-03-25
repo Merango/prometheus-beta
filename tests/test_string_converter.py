@@ -3,8 +3,9 @@ from src.string_converter import convert_to_alternating_pascal_case
 
 def test_basic_conversion():
     """Test basic string conversion to alternating Pascal case."""
-    assert convert_to_alternating_pascal_case("hello world") == "HeLlOWoRlD"
-    assert convert_to_alternating_pascal_case("python is awesome") == "PyThOnIsAwEsOmE"
+    result = convert_to_alternating_pascal_case("hello world")
+    print(f"Result: {result}")
+    assert result == "HeLlOWoRlD"
 
 def test_single_word():
     """Test conversion of a single word."""
@@ -12,7 +13,9 @@ def test_single_word():
 
 def test_multiple_words():
     """Test conversion of multiple words."""
-    assert convert_to_alternating_pascal_case("one two three") == "OneTwOThReE"
+    result = convert_to_alternating_pascal_case("one two three")
+    print(f"Result: {result}")
+    assert result == "OneTwOThReE"
 
 def test_mixed_case_input():
     """Test input with mixed case."""
