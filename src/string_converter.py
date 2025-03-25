@@ -30,19 +30,24 @@ def to_alternating_path_case(input_string):
     if not input_string:
         return ""
     
-    # Replace multiple separators with a single hyphen
+    # Replace multiple separators with a single hyphen and normalize case
     import re
-    normalized = re.sub(r'[ _-]+', '-', input_string)
+    
+    # Normalize the string by replacing separators with hyphen and converting to lower
+    normalized = re.sub(r'[ _-]+', '-', input_string.lower())
     
     # Split by hyphen
     words = normalized.split('-')
     
-    # Alternate capitalization
-    result_words = [words[0].capitalize()]
-    for word in words[1::2]:
-        result_words.append(word.capitalize())
-    for word in words[2::2]:
-        result_words.append(word.lower())
+    # Capitalize specific words based on alternating pattern
+    result_words = []
+    for i, word in enumerate(words):
+        if i % 2 == 0:
+            # First word and every other word (even indices)
+            result_words.append(word.capitalize())
+        else:
+            # Alternate words
+            result_words.append(word)
     
     # Join with hyphen
     return '-'.join(result_words)
