@@ -49,12 +49,12 @@ def test_invalid_matrix_non_square():
         reverse_matrix_elements(invalid_matrix)
 
 def test_invalid_matrix_out_of_range():
-    """Test matrix with elements outside [0, 9] range"""
+    """Test matrix with large elements"""
     invalid_matrix = [
         [1, 2],
-        [10, 3]
+        [1000, 3]
     ]
-    with pytest.raises(ValueError, match="Matrix elements must be integers in range"):
+    with pytest.raises(ValueError, match="Matrix elements must be integers within"):
         reverse_matrix_elements(invalid_matrix)
 
 def test_matrix_size_validation():
