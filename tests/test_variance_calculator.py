@@ -37,7 +37,7 @@ def test_non_numeric_list_raises_error():
 def test_large_numbers():
     """Test variance calculation with large numbers."""
     numbers = [10000, 20000, 30000, 40000, 50000]
-    expected_variance = 2.5e9  # Rough calculation
+    expected_variance = 250000000.0  # Exact calculation
     assert math.isclose(calculate_variance(numbers), expected_variance, rel_tol=1e-9)
 
 def test_negative_numbers():
@@ -49,5 +49,5 @@ def test_negative_numbers():
 def test_mixed_numbers():
     """Test variance calculation with mixed positive and negative numbers."""
     numbers = [-10, 0, 10, 20, 30]
-    expected_variance = 200.0
+    expected_variance = 250.0  # Exact calculation
     assert math.isclose(calculate_variance(numbers), expected_variance, rel_tol=1e-9)
