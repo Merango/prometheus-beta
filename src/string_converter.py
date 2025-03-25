@@ -39,14 +39,14 @@ def convert_to_alternating_pascal_case(input_string: str) -> str:
     
     # Convert to alternating case
     result = []
-    for word in words:
+    for i, word in enumerate(words):
         converted_word = []
-        for i, char in enumerate(word):
-            if i % 2 == 0:
+        for j, char in enumerate(word):
+            if (i + j) % 2 == 0:
                 converted_word.append(char.upper())
             else:
                 converted_word.append(char.lower())
         result.append(''.join(converted_word))
     
-    # Join the words together and ensure the first character of each word is uppercase
+    # Join the words together
     return ''.join(result)
