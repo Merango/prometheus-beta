@@ -109,12 +109,18 @@ def lzc_decompress(compressed_data):
 
     # Decompression algorithm
     for code in compressed_data[1:]:
-        # Validate code
-        if code not in dictionary:
-            raise ValueError(f"Invalid compression code: {code}")
-
-        # Get the current entry
-        entry = dictionary[code]
+        # Check if code is an existing entry
+        entry = None
+        if code < next_code:
+            entry = dictionary.get(code)
+        
+        # Special case: code equals next dictionary entry
+        if entry is None and code == next_code:
+            entry = dictionary[previous_code] + bytes([dictionary[previous_code][0]])
+        
+        # Raise error if no valid entry found
+        if entry is None:
+            raise ValueError(f"Invalid or unsupported compression code: {code}")
         
         # Extend decompressed result
         decompressed.extend(entry)
