@@ -22,18 +22,14 @@ def sum_unique_elements(arr):
     if not all(isinstance(x, int) for x in arr):
         raise TypeError("All elements must be integers")
     
-    # Use a set to track unique elements efficiently
-    unique_elements = set()
-    unique_sum = 0
+    # Use a dictionary to track element counts
+    element_counts = {}
     
+    # Count occurrences of each element
     for num in arr:
-        # If the number is not in the set, add it to both set and sum
-        if num not in unique_elements:
-            unique_elements.add(num)
-            unique_sum += num
-        # If the number is already in the set, remove it to exclude from sum
-        else:
-            unique_elements.remove(num)
-            unique_sum -= num
+        element_counts[num] = element_counts.get(num, 0) + 1
+    
+    # Calculate sum of unique elements (those with exactly one occurrence)
+    unique_sum = sum(num for num, count in element_counts.items() if count == 1)
     
     return unique_sum
