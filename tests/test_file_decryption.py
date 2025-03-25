@@ -60,19 +60,19 @@ def test_invalid_key(sample_encrypted_file):
     with pytest.raises(ValueError):
         decrypt_file(sample_encrypted_file['file_path'], wrong_key)
 
-def test_none_key():
+def test_none_key(sample_encrypted_file):
     """
     Test decryption with None key
     """
     with pytest.raises(ValueError):
-        decrypt_file('some_file.bin', None)
+        decrypt_file(sample_encrypted_file['file_path'], None)
 
-def test_invalid_key_type():
+def test_invalid_key_type(sample_encrypted_file):
     """
     Test decryption with invalid key type
     """
     with pytest.raises(TypeError):
-        decrypt_file('some_file.bin', 12345)
+        decrypt_file(sample_encrypted_file['file_path'], 12345)
 
 def test_generate_key():
     """
