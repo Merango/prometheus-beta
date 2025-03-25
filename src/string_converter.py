@@ -48,5 +48,5 @@ def convert_to_alternating_pascal_case(input_string: str) -> str:
                 converted_word.append(char.lower())
         result.append(''.join(converted_word))
     
-    # Join the words together
+    # Join the words together and ensure the first character of each word is uppercase
     return ''.join(result)
