@@ -1,0 +1,45 @@
+def convert_to_alternating_pascal_case(input_string: str) -> str:
+    """
+    Convert a string to alternating Pascal case.
+    
+    This function transforms the input string so that words alternate between 
+    starting with an uppercase and lowercase letter.
+    
+    Args:
+        input_string (str): The input string to be converted.
+    
+    Returns:
+        str: The string converted to alternating Pascal case.
+    
+    Raises:
+        TypeError: If the input is not a string.
+        ValueError: If the input string is empty.
+    
+    Examples:
+        >>> convert_to_alternating_pascal_case("hello world")
+        'HeLlOWoRlD'
+        >>> convert_to_alternating_pascal_case("python is awesome")
+        'PyThOnIsAwEsOmE'
+    """
+    # Check input type
+    if not isinstance(input_string, str):
+        raise TypeError("Input must be a string")
+    
+    # Check for empty string
+    if not input_string:
+        raise ValueError("Input string cannot be empty")
+    
+    # Remove extra whitespace and split into words
+    words = input_string.strip().split()
+    
+    # Convert to alternating case
+    result = []
+    for word in words:
+        converted_word = ''.join(
+            char.upper() if (i % 2 == 0) else char.lower() 
+            for i, char in enumerate(word)
+        )
+        result.append(converted_word)
+    
+    # Join the words together
+    return ''.join(result)
