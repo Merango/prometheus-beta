@@ -27,6 +27,10 @@ def calculate_variance(numbers):
     if not all(isinstance(x, (int, float)) for x in numbers):
         raise TypeError("All elements must be numeric")
     
+    # Special case for single element list
+    if len(numbers) == 1:
+        return 0.0
+    
     # Calculate mean
     mean = sum(numbers) / len(numbers)
     
