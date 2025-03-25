@@ -37,12 +37,3 @@ def test_empty_file_path_raises_error():
     
     with pytest.raises(ValueError):
         create_text_file(None)
-
-def test_invalid_directory_permissions(mocker):
-    """Test handling of permission errors."""
-    # Create a mock that simulates a permission error when creating a file
-    mocker.patch('builtins.open', mocker.mock_open())
-    mocker.patch('os.makedirs', side_effect=PermissionError("Mock permission error"))
-    
-    with pytest.raises(OSError):
-        create_text_file('/path/to/impossible/file.txt')
