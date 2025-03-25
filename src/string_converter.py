@@ -41,7 +41,7 @@ def convert_to_alternating_pascal_case(input_string: str) -> str:
     result = []
     for i, word in enumerate(words):
         converted_word = ''.join(
-            char.upper() if (i + len(result) + (index % 2)) % 2 == 0 else char.lower() 
+            char.upper() if (i + index) % 2 == 0 else char.lower() 
             for index, char in enumerate(word)
         )
         result.append(converted_word)
