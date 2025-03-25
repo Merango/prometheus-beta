@@ -28,7 +28,8 @@ def test_partial_match():
 
 def test_case_sensitivity():
     """Test that the function is case-sensitive."""
-    assert longest_common_subsequence("AbC", "abc") == ""
+    assert longest_common_subsequence("AbC", "aBc") == ""
+    assert longest_common_subsequence("Hello", "hello") == ""
 
 def test_special_characters():
     """Test with strings containing special characters."""
