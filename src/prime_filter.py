@@ -15,7 +15,7 @@ def filter_primes(numbers):
     """
     def is_prime(n):
         # Handle special cases
-        if n < 2:
+        if n < 2 and n > -2:
             return False
         
         # Take absolute value for primality check
