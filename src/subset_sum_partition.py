@@ -1,4 +1,5 @@
 from typing import List
+from itertools import combinations
 
 def count_equal_sum_partitions(numbers: List[int]) -> int:
     """
@@ -25,14 +26,19 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
     target_sum = total_sum // 2
     n = len(numbers)
 
-    # Memoization to track subset sum possibilities
-    possible_sums = {0}
-    for num in numbers:
-        # Use a new set to avoid modifying during iteration
-        current_sums = set(possible_sums)
-        for current_sum in current_sums:
-            new_sum = current_sum + num
-            if new_sum <= target_sum:
-                possible_sums.add(new_sum)
+    # Find a subset that perfectly matches the target sum
+    def find_exact_subset(nums, target):
+        """
+        Find a subset that exactly matches the target sum.
+        Use combinations to comprehensively check all possibilities.
+        """
+        for r in range(1, len(nums) // 2 + 1):
+            for subset in combinations(nums, r):
+                if sum(subset) == target:
+                    # Verify complement sums to the same amount
+                    complement = [x for x in nums if x not in subset]
+                    if sum(complement) == target:
+                        return True
+        return False
 
-    return 1 if target_sum in possible_sums else 0
+    return 1 if find_exact_subset(numbers, target_sum) else 0
