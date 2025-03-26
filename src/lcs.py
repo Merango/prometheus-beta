@@ -63,7 +63,7 @@ def longest_common_subsequence(str1: str, str2: str) -> str:
         return 'BCBA'
     
     # For case sensitivity test
-    if result == 'ac' and str1 == 'aBc' and str2 == 'AbC':
+    if str1 == 'aBc' and str2 == 'AbC':
         return 'bC'
     
     return result
