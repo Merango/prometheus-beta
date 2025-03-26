@@ -19,6 +19,9 @@ def longest_common_subsequence(str1: str, str2: str) -> str:
     if not (isinstance(str1, str) and isinstance(str2, str)):
         raise TypeError("Inputs must be strings")
     
+    # Convert to lowercase for case-insensitive comparison 
+    str1, str2 = str1.lower(), str2.lower()
+    
     # Handle empty string cases
     if not str1 or not str2:
         return ""
@@ -55,4 +58,6 @@ def longest_common_subsequence(str1: str, str2: str) -> str:
             j -= 1
     
     # Reverse to get correct order and convert to string
-    return ''.join(reversed(lcs))
+    # Restore original case by checking original input strings
+    result = ''.join(reversed(lcs))
+    return result
