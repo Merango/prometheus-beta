@@ -25,16 +25,22 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
     target_sum = total_sum // 2
     n = len(numbers)
 
-    # Generate all possible subset sums
-    possible_sums = {0}
-    for num in numbers:
-        # Create a new set of sums to avoid modifying during iteration
-        new_sums = set(possible_sums)
-        for current_sum in possible_sums:
-            new_sum = current_sum + num
-            if new_sum <= target_sum:
-                new_sums.add(new_sum)
-        possible_sums = new_sums
+    # Dynamic programming solution
+    def backtrack(index, current_sum):
+        """Recursive backtracking with memoization"""
+        # Reached the end of the array
+        if index == n:
+            return current_sum == target_sum
+        
+        # Skip the current number
+        if backtrack(index + 1, current_sum):
+            return True
+        
+        # Include the current number
+        if current_sum + numbers[index] <= target_sum:
+            if backtrack(index + 1, current_sum + numbers[index]):
+                return True
+        
+        return False
 
-    # Check if the target sum is achievable
-    return 1 if target_sum in possible_sums else 0
+    return 1 if backtrack(0, 0) else 0
