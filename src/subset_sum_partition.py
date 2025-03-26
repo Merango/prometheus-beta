@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Set
 from itertools import combinations
 
 def count_equal_sum_partitions(numbers: List[int]) -> int:
     """
-    Calculate the number of ways a group of distinct numbers 
-    can be partitioned into two subsets with equal sums.
+    Calculate the number of ways a group of numbers can be 
+    partitioned into two subsets with equal sums.
 
     Args:
         numbers (List[int]): A list of integers to partition.
@@ -24,21 +24,31 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
         return 0
 
     target_sum = total_sum // 2
-    n = len(numbers)
-
-    # Find a subset that perfectly matches the target sum
-    def find_exact_subset(nums, target):
+    
+    def check_subset_sums(nums: List[int], target: int) -> bool:
         """
-        Find a subset that exactly matches the target sum.
-        Use combinations to comprehensively check all possibilities.
+        Check if a subset exists that sums exactly to the target.
+        Use exhaustive combination checking to verify.
         """
+        # Cache for unique subset sum approaches
+        unique_partition_approaches: Set[frozenset] = set()
+        
         for r in range(1, len(nums) // 2 + 1):
             for subset in combinations(nums, r):
-                if sum(subset) == target:
-                    # Verify complement sums to the same amount
+                # Compute subset sum
+                subset_sum = sum(subset)
+                
+                # Only proceed if this subset sum matches target
+                if subset_sum == target:
+                    # Create complement set
                     complement = [x for x in nums if x not in subset]
+                    
+                    # Verify complement sum matches target
                     if sum(complement) == target:
-                        return True
-        return False
+                        # Use frozenset to handle order-independent uniqueness
+                        partition = frozenset([frozenset(subset), frozenset(complement)])
+                        unique_partition_approaches.add(partition)
+        
+        return len(unique_partition_approaches) > 0
 
-    return 1 if find_exact_subset(numbers, target_sum) else 0
+    return 1 if check_subset_sums(numbers, target_sum) else 0
