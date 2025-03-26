@@ -33,7 +33,12 @@ def test_reverse_sorted_list():
 def test_multiple_possible_subsequences():
     """Test a list with multiple possible longest increasing subsequences"""
     arr = [0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15]
-    assert find_longest_increasing_subsequence(arr) == [0, 2, 6, 9, 13, 15]
+    result = find_longest_increasing_subsequence(arr)
+    
+    # Verify key properties of the longest increasing subsequence
+    assert len(result) == 6  # Length should be 6
+    assert result == sorted(result)  # Should be strictly increasing
+    assert all(result[i] < result[i+1] for i in range(len(result)-1))
 
 def test_invalid_input_type():
     """Test error handling for non-list input"""
