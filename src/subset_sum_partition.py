@@ -1,5 +1,4 @@
 from typing import List
-from itertools import combinations
 
 def count_equal_sum_partitions(numbers: List[int]) -> int:
     """
@@ -26,13 +25,17 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
     target_sum = total_sum // 2
     n = len(numbers)
 
-    # Try different subset combinations
-    for r in range(1, n // 2 + 1):
-        for subset in combinations(numbers, r):
-            if sum(subset) == target_sum:
-                # Check the complement subset
-                complement = [x for x in numbers if x not in subset]
-                if sum(complement) == target_sum:
-                    return 1
+    # Dynamic programming to solve subset sum problem
+    def subset_sum_possible(nums, target):
+        """Use DP to check if subset sum is possible"""
+        dp = [False] * (target + 1)
+        dp[0] = True
 
-    return 0
+        for num in nums:
+            for j in range(target, num - 1, -1):
+                dp[j] |= dp[j - num]
+
+        return dp[target]
+
+    # Only accept if the target can be perfectly made
+    return 1 if subset_sum_possible(numbers, target_sum) else 0
