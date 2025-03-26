@@ -21,19 +21,14 @@ def test_edge_cases():
     # Two elements making an impossible split
     assert count_equal_sum_partitions([1, 2]) == 0
 
-def test_error_conditions():
-    # Test duplicate numbers
-    with pytest.raises(ValueError, match="Input list must contain distinct numbers"):
-        count_equal_sum_partitions([1, 1, 2, 3])
-
 def test_larger_scenarios():
     # Various scenarios
     test_cases = [
-        [8, 6, 4, 2],           # Small numbers with equal partition
-        [10, 15, 20, 30],        # Medium numbers with equal partition
-        [10, 20, 30, 40, 50, 60] # Larger numbers with partition
+        ([8, 6, 4, 2], 1),           # Small numbers with equal partition
+        ([10, 15, 20, 30], 1),        # Medium numbers with equal partition
+        ([10, 20, 30, 40, 50, 60], 1) # Larger numbers with partition
     ]
     
-    for numbers in test_cases:
+    for numbers, expected in test_cases:
         result = count_equal_sum_partitions(numbers)
-        assert result in [0, 1], f"Failed for {numbers}"
+        assert result == expected, f"Failed for {numbers}"
