@@ -30,12 +30,13 @@ def find_word_occurrences(input_string: str, target_word: str) -> list:
     current_position = 0
     
     # Iterate through words
-    for word in words:
+    for i, word in enumerate(words):
         # Check if current word matches target
         if word == target_word:
             occurrences.append((current_position, word))
         
-        # Update current position (add word length + 1 for space, except after last word)
-        current_position += len(word) + (1 if word != words[-1] else 0)
+        # Update current position 
+        # Add word length plus space for all words except the last one
+        current_position += len(word) + (1 if i < len(words) - 1 else 0)
     
     return occurrences
