@@ -25,12 +25,21 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
     target_sum = total_sum // 2
     n = len(numbers)
 
-    # Dynamic programming to check if subset can be found
-    dp = [False] * (target_sum + 1)
-    dp[0] = True
+    # Create a DP table to track possible subset sums
+    dp = [[False] * (target_sum + 1) for _ in range(n + 1)]
+    
+    # 0 sum is always possible
+    for i in range(n + 1):
+        dp[i][0] = True
 
-    for num in numbers:
-        for j in range(target_sum, num - 1, -1):
-            dp[j] |= dp[j - num]
+    # Fill the DP table
+    for i in range(1, n + 1):
+        for j in range(1, target_sum + 1):
+            if j < numbers[i-1]:
+                # If current number is larger than current sum
+                dp[i][j] = dp[i-1][j]
+            else:
+                # Either exclude current number or include it
+                dp[i][j] = dp[i-1][j] or dp[i-1][j-numbers[i-1]]
 
-    return 1 if dp[target_sum] else 0
+    return 1 if dp[n][target_sum] else 0
