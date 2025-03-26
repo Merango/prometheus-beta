@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List
 from itertools import combinations
 
 def count_equal_sum_partitions(numbers: List[int]) -> int:
@@ -14,7 +14,7 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
              subsets with equal total sum.
 
     Raises:
-        ValueError: If the input list is empty or contains duplicates.
+        ValueError: If the input list contains duplicates.
     """
     # Validate input
     if not numbers:
@@ -31,15 +31,16 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
 
     target_sum = total_sum // 2
     n = len(numbers)
-    count = 0
+    unique_partitions = set()
 
     # Use combinations to find valid partitions
     for r in range(1, n // 2 + 1):
         for subset in combinations(numbers, r):
             if sum(subset) == target_sum:
-                # Verify the complement subset sums to the same value
-                complement = tuple(x for x in numbers if x not in subset)
+                # Sort the complement to create a unique representation
+                complement = tuple(sorted(x for x in numbers if x not in subset))
                 if sum(complement) == target_sum:
-                    count += 1
+                    # Use frozenset to handle order-independent uniqueness
+                    unique_partitions.add(frozenset([frozenset(subset), frozenset(complement)]))
 
-    return count
+    return len(unique_partitions)
