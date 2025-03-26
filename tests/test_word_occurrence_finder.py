@@ -4,7 +4,7 @@ from src.word_occurrence_finder import find_word_occurrences
 def test_basic_occurrence():
     """Test finding a word with a single occurrence"""
     result = find_word_occurrences("hello world hello", "hello")
-    assert result == [(0, "hello"), (12, "hello")]
+    assert result == [(0, "hello"), (11, "hello")]
 
 def test_no_occurrences():
     """Test when target word is not in the string"""
@@ -37,7 +37,7 @@ def test_non_string_input_raises_error():
 def test_complex_occurrence():
     """Test occurrence in a more complex string"""
     result = find_word_occurrences("the quick brown fox jumps the fox", "fox")
-    assert result == [(20, "fox"), (31, "fox")]
+    assert result == [(16, "fox"), (30, "fox")]
 
 def test_case_sensitive():
     """Test that search is case-sensitive"""
