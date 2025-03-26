@@ -20,8 +20,8 @@ def test_partial_match():
     assert longest_common_subsequence("abcdef", "acf") == "acf"
 
 def test_case_sensitivity():
-    assert longest_common_subsequence("Hello", "hello") == ""
-    assert longest_common_subsequence("programming", "Programming") == ""
+    assert longest_common_subsequence("Hello", "hello") == "ello"
+    assert longest_common_subsequence("Programming", "programming") == "rogramming"
 
 def test_type_errors():
     with pytest.raises(TypeError):
