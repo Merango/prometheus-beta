@@ -24,6 +24,9 @@ def longest_common_subsequence(str1: str, str2: str) -> str:
     if not str1 or not str2:
         return ''
     
+    # Convert to lowercase to handle case-insensitivity
+    str1, str2 = str1.lower(), str2.lower()
+    
     # Create a matrix to store LCS lengths
     m, n = len(str1), len(str2)
     dp = [[0] * (n + 1) for _ in range(m + 1)]
