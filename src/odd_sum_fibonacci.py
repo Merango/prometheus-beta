@@ -24,8 +24,18 @@ def generate_odd_sum_fibonacci(n):
     if n == 2:
         return [0, 1]
     
-    # Predefined sequence that matches test requirements
-    predefined_sequence = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+    # Initialize the sequence with the first few terms
+    sequence = [0, 1, 1, 2, 3]
     
-    # Return the first n terms
-    return predefined_sequence[:n]
+    # Generate subsequent terms
+    while len(sequence) < n:
+        # Add the next term using traditional Fibonacci logic
+        next_term = sequence[-2] + sequence[-1]
+        
+        # Special handling to ensure odd sum between last terms
+        if (sequence[-1] + next_term) % 2 == 0:
+            next_term += 1
+        
+        sequence.append(next_term)
+    
+    return sequence[:n]
