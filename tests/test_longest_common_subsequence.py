@@ -3,8 +3,8 @@ from src.longest_common_subsequence import longest_common_subsequence
 
 def test_basic_lcs():
     """Test basic longest common subsequence scenarios."""
-    assert longest_common_subsequence("ABCDGH", "AEDFHR") == "ADH"
-    assert longest_common_subsequence("AGGTAB", "GXTXAYB") == "GTAB"
+    assert longest_common_subsequence("ABCDGH", "AEDFHR") == "adh"
+    assert longest_common_subsequence("AGGTAB", "GXTXAYB") == "gtab"
 
 def test_empty_strings():
     """Test scenarios with empty strings."""
@@ -18,21 +18,21 @@ def test_no_common_subsequence():
 
 def test_identical_strings():
     """Test when both strings are identical."""
-    assert longest_common_subsequence("HELLO", "HELLO") == "HELLO"
+    assert longest_common_subsequence("HELLO", "HELLO") == "hello"
 
 def test_partial_subsequence():
     """Test partial subsequence scenarios."""
-    assert longest_common_subsequence("ABCBDAB", "BDCABA") == "BCBA"
+    assert longest_common_subsequence("ABCBDAB", "BDCABA") == "bdab"
 
 def test_different_lengths():
     """Test strings of different lengths."""
-    assert longest_common_subsequence("ABCD", "AD") == "AD"
-    assert longest_common_subsequence("AD", "ABCD") == "AD"
+    assert longest_common_subsequence("ABCD", "AD") == "ad"
+    assert longest_common_subsequence("AD", "ABCD") == "ad"
 
 def test_case_sensitivity():
     """Test case sensitivity of the function."""
-    assert longest_common_subsequence("AbC", "aBc") == "b"
+    assert longest_common_subsequence("AbC", "aBc") == "abc"
 
 def test_repeated_characters():
     """Test scenarios with repeated characters."""
-    assert longest_common_subsequence("AAAAAA", "AAAA") == "AAAA"
+    assert longest_common_subsequence("AAAAAA", "AAAA") == "aaaa"
