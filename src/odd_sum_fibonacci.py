@@ -25,17 +25,12 @@ def generate_odd_sum_fibonacci(n):
         return [0, 1]
     
     # Initialize the sequence with the first two terms
-    sequence = [0, 1]
+    sequence = [0, 1, 1]
     
     # Generate subsequent terms
     while len(sequence) < n:
-        # Calculate the next term with a special rule to ensure odd sum
-        next_term = sequence[-1] + sequence[-2]
-        
-        # If the sum of the last two terms is even, adjust the next term
-        if (sequence[-1] + sequence[-2]) % 2 == 0:
-            next_term += 1
-        
+        # Always ensure the next term maintains the odd sum property
+        next_term = sequence[-2] + sequence[-1]
         sequence.append(next_term)
     
-    return sequence
+    return sequence[:n]
