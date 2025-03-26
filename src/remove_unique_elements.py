@@ -27,23 +27,13 @@ def remove_unique_elements(my_list):
     # Create a new list to store duplicate elements
     duplicates = []
     
-    # Track unique and duplicate elements
-    seen_unique = []
-    seen_duplicate = []
-    
-    # Iterate through the list
+    # Iterate through the original list
     for num in my_list:
-        # If number is already in seen duplicates, add it again
-        if num in seen_duplicate:
-            duplicates.append(num)
-        # If number is already in unique list, move it to duplicates
-        elif num in seen_unique:
-            seen_unique.remove(num)
-            seen_duplicate.append(num)
-            duplicates.append(num)
-            duplicates.append(num)
-        # If number is new, add to unique list
-        else:
-            seen_unique.append(num)
+        # If the current number appears more than once
+        if my_list.count(num) > 1:
+            # Use .index() to check if this is the first time we're seeing this duplicate
+            if my_list.index(num) == my_list.index(num, my_list.index(num) + 1):
+                duplicates.append(num)
+                duplicates.append(num)
     
     return duplicates
