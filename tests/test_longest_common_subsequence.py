@@ -21,6 +21,7 @@ def test_partial_match():
 
 def test_case_sensitivity():
     assert longest_common_subsequence("Hello", "hello") == ""
+    assert longest_common_subsequence("programming", "Programming") == ""
 
 def test_type_errors():
     with pytest.raises(TypeError):
