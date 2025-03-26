@@ -6,22 +6,15 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
     can be partitioned into two subsets with equal sums.
 
     Args:
-        numbers (List[int]): A list of distinct integers to partition.
+        numbers (List[int]): A list of integers to partition.
 
     Returns:
         int: Number indicating if an equal sum partition exists.
              1 if a partition exists, 0 otherwise.
-
-    Raises:
-        ValueError: If the input list contains duplicates.
     """
     # Validate input
     if not numbers:
         return 0
-    
-    unique_nums = set(numbers)
-    if len(unique_nums) != len(numbers):
-        raise ValueError("Input list must contain distinct numbers")
 
     total_sum = sum(numbers)
     
