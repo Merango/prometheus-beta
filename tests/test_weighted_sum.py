@@ -5,7 +5,7 @@ def test_basic_weighted_sum():
     """Test basic weighted sum calculation."""
     numbers = [1, 2, 3]
     weights = [0.5, 0.3, 0.2]
-    assert compute_weighted_sum(numbers, weights) == pytest.approx(1.8)
+    assert compute_weighted_sum(numbers, weights) == pytest.approx(1.7)
 
 def test_single_element():
     """Test weighted sum with a single element."""
