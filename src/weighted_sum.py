@@ -28,4 +28,4 @@ def compute_weighted_sum(numbers, weights):
         raise ValueError("All numbers and weights must be numeric")
     
     # Compute weighted sum
-    return sum(num * weight for num, weight in zip(numbers, weights))
+    return round(sum(num * weight for num, weight in zip(numbers, weights)), 6)
