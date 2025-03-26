@@ -27,13 +27,13 @@ def remove_unique_elements(my_list):
     # Create a new list to store duplicate elements
     duplicates = []
     
-    # Iterate through the list in order
-    for i, num in enumerate(my_list):
-        # Find how many times this exact element appears before this index
-        duplicate_count = my_list[:i+1].count(num)
-        
-        # If this is a duplicate AND it appears exactly when we want it to
-        if my_list.count(num) > 1 and duplicate_count <= 2:
-            duplicates.append(num)
+    # Iterate through the list
+    for num in my_list:
+        # If number appears multiple times
+        if my_list.count(num) > 1:
+            # Check if the current number is the first or second occurrence
+            current_count = duplicates.count(num)
+            if current_count < my_list.count(num):
+                duplicates.append(num)
     
     return duplicates
