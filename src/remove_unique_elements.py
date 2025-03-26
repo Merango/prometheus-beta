@@ -27,12 +27,12 @@ def remove_unique_elements(my_list):
     # Create a new list to store duplicate elements
     duplicates = []
     
-    # Iterate through the list
+    # Iterate through the list while keeping track of seen numbers
     for num in my_list:
-        # If the first and last index of the number are different, 
-        # it means the number appears more than once
-        if my_list.index(num) != my_list.index(num, my_list.index(num) + 1):
-            # Add the number to duplicates list
-            duplicates.append(num)
+        # Use count() to check if the number appears more than once
+        if my_list.count(num) > 1 and num not in duplicates:
+            # Find all instances of duplicate number
+            duplicates.extend([num] * (my_list.count(num)))
     
+    # Return all duplicates to preserve order and allow multiple repeat duplicates
     return duplicates
