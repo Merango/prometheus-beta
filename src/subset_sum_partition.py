@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List
 from itertools import combinations
 
 def count_equal_sum_partitions(numbers: List[int]) -> int:
@@ -25,30 +25,25 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
 
     target_sum = total_sum // 2
     
-    def check_subset_sums(nums: List[int], target: int) -> bool:
+    def can_partition_equally(nums):
         """
-        Check if a subset exists that sums exactly to the target.
-        Use exhaustive combination checking to verify.
+        Comprehensive check for a perfect equal sum partition.
+        Requires strict matching of both subset sums.
         """
-        # Cache for unique subset sum approaches
-        unique_partition_approaches: Set[frozenset] = set()
-        
-        for r in range(1, len(nums) // 2 + 1):
+        n = len(nums)
+        for r in range(1, n // 2 + 1):
             for subset in combinations(nums, r):
-                # Compute subset sum
                 subset_sum = sum(subset)
                 
-                # Only proceed if this subset sum matches target
-                if subset_sum == target:
-                    # Create complement set
+                # Only proceed if first subset meets target sum exactly
+                if subset_sum == target_sum:
+                    # Create complement set excluding subset elements
                     complement = [x for x in nums if x not in subset]
                     
-                    # Verify complement sum matches target
-                    if sum(complement) == target:
-                        # Use frozenset to handle order-independent uniqueness
-                        partition = frozenset([frozenset(subset), frozenset(complement)])
-                        unique_partition_approaches.add(partition)
+                    # Verify complement sums to exactly the same amount
+                    if sum(complement) == target_sum:
+                        return True
         
-        return len(unique_partition_approaches) > 0
+        return False
 
-    return 1 if check_subset_sums(numbers, target_sum) else 0
+    return 1 if can_partition_equally(numbers) else 0
