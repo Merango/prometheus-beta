@@ -4,7 +4,7 @@ from src.word_occurrence_finder import find_word_occurrences
 def test_basic_occurrence():
     """Test finding a word with a single occurrence"""
     result = find_word_occurrences("hello world hello", "hello")
-    assert result == [(0, "hello"), (11, "hello")]
+    assert result == [(0, "hello"), (12, "hello")]
 
 def test_no_occurrences():
     """Test when target word is not in the string"""
