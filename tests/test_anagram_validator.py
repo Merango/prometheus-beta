@@ -20,7 +20,8 @@ def test_different_lengths():
 
 def test_empty_strings():
     """Test empty string edge cases."""
-    assert is_anagram("", "") == True
+    with pytest.raises(ValueError):
+        is_anagram("", "")
 
 def test_single_character():
     """Test single character anagrams."""
