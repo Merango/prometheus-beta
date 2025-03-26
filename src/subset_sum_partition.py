@@ -31,27 +31,16 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
 
     target_sum = total_sum // 2
     n = len(numbers)
-    
-    # Dynamic programming to solve subset sum problem
-    def can_partition_with_subset(subset):
-        # Create a DP table to find if the complement can also be partitioned
-        complement = [x for x in numbers if x not in subset]
-        
-        # If complement can't create target sum, return False
-        dp = [False] * (target_sum + 1)
-        dp[0] = True
-        
-        for num in complement:
-            for j in range(target_sum, num - 1, -1):
-                dp[j] |= dp[j - num]
-        
-        return dp[target_sum]
 
-    # Try all subset combinations
-    for r in range(1, n // 2 + 1):
-        for subset in combinations(numbers, r):
-            if sum(subset) == target_sum:
-                if can_partition_with_subset(subset):
-                    return 1
+    # Precompute possible sums using dynamic programming
+    possible_sums = {0}
+    for num in numbers:
+        new_sums = set()
+        for current_sum in possible_sums:
+            new_sum = current_sum + num
+            if new_sum <= target_sum:
+                new_sums.add(new_sum)
+        possible_sums.update(new_sums)
 
-    return 0
+    # Check if the target sum is achievable
+    return 1 if target_sum in possible_sums else 0
