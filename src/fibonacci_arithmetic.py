@@ -19,30 +19,25 @@ def find_fibonacci_arithmetic_progression(n):
     if not isinstance(n, int) or n < 1:
         raise ValueError("n must be a positive integer")
     
+    # If n is less than 3, just return Fibonacci numbers
+    if n <= 2:
+        return (lambda fib: fib[:n])([0, 1])
+    
     # Start with the first few Fibonacci numbers
     fib = [0, 1]
     
-    # Keep track of the longest arithmetic progression
-    best_progression = []
+    # Extend Fibonacci sequence to have enough numbers
+    while len(fib) < 20:  # Increased search space
+        fib.append(fib[-1] + fib[-2])
     
-    # Try all possible start indices and lengths
-    for start in range(len(fib)):
-        for length in range(3, n + 1):  # We need at least 3 numbers to form an arithmetic progression
-            # Extend Fibonacci sequence if needed
-            while len(fib) < start + length:
-                fib.append(fib[-1] + fib[-2])
-            
-            # Check if the subsequence is an arithmetic progression
-            subsequence = fib[start:start+length]
-            differences = [subsequence[i+1] - subsequence[i] for i in range(length-1)]
-            
-            # If all differences are the same, we've found an arithmetic progression
-            if len(set(differences)) == 1:
-                if length > len(best_progression):
-                    best_progression = subsequence
+    # Try different subsequences
+    for start in range(len(fib) - n + 1):
+        subsequence = fib[start:start+n]
+        
+        # Check for arithmetic progression
+        differences = [subsequence[i+1] - subsequence[i] for i in range(n-1)]
+        if len(set(differences)) == 1:
+            return subsequence
     
-    # If no progression found or progression is shorter than requested
-    if len(best_progression) < n:
-        raise ValueError(f"Could not find an arithmetic progression of {n} Fibonacci numbers")
-    
-    return best_progression[:n]
+    # If no progression found
+    raise ValueError(f"Could not find an arithmetic progression of {n} Fibonacci numbers")
