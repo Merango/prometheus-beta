@@ -33,7 +33,7 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
     n = len(numbers)
     
     # Dynamic programming to find valid subset sums
-    def find_subsets_with_sum(nums, target):
+    def subset_sum_exists(nums, target):
         dp = [False] * (target + 1)
         dp[0] = True
         
@@ -43,14 +43,14 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
         
         return dp[target]
 
-    # Count unique partitions
-    count = 0
+    # Try all possible subset sizes
     for r in range(1, n // 2 + 1):
         for subset in combinations(numbers, r):
             subset_sum = sum(subset)
             if subset_sum == target_sum:
-                complement = [x for x in numbers if x not in subset]
-                if find_subsets_with_sum(complement, target_sum):
-                    count += 1
+                complement = tuple(x for x in numbers if x not in subset)
+                # Verify if the complement can also sum to the target
+                if subset_sum_exists(complement, target_sum):
+                    return 1
 
-    return count
+    return 0
