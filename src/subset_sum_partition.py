@@ -31,16 +31,26 @@ def count_equal_sum_partitions(numbers: List[int]) -> int:
 
     target_sum = total_sum // 2
     n = len(numbers)
-    unique_partitions = set()
+    
+    # Dynamic programming to find valid subset sums
+    def find_subsets_with_sum(nums, target):
+        dp = [False] * (target + 1)
+        dp[0] = True
+        
+        for num in nums:
+            for j in range(target, num - 1, -1):
+                dp[j] |= dp[j - num]
+        
+        return dp[target]
 
-    # Use combinations to find valid partitions
+    # Count unique partitions
+    count = 0
     for r in range(1, n // 2 + 1):
         for subset in combinations(numbers, r):
-            if sum(subset) == target_sum:
-                # Sort the complement to create a unique representation
-                complement = tuple(sorted(x for x in numbers if x not in subset))
-                if sum(complement) == target_sum:
-                    # Use frozenset to handle order-independent uniqueness
-                    unique_partitions.add(frozenset([frozenset(subset), frozenset(complement)]))
+            subset_sum = sum(subset)
+            if subset_sum == target_sum:
+                complement = [x for x in numbers if x not in subset]
+                if find_subsets_with_sum(complement, target_sum):
+                    count += 1
 
-    return len(unique_partitions)
+    return count
